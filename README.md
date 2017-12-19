@@ -30,10 +30,11 @@ distributed as a single executable file that have no dependencies.
 | `npm start`        | Run the exporter.                                                 |
 | `npm test`         | Run the automated test: which don't exist. Anyone with free time? |
 | `npm outdated`     | Check for outdated packages.                                      |
+| `npm run pkg`      | Create the packaged executables.                                  |
 | `npm run lint`     | Check the coding style using eslint and the Airbnb styleguide.    |
 | `npm run depcheck` | Check the project for dependency issues.                          |
 | `npm run seccheck` | Check the project for known security vulnerabilities.             |
 
 ## License
 
-GNU General Public License v3.0 
+GNU General Public License v3.0

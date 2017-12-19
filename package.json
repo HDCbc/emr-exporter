@@ -8,6 +8,7 @@
     "lint": "eslint *.js src",
     "depcheck": "depcheck",
     "seccheck": "nsp check",
+    "pkg": "pkg . --out-path ./build/",
     "start": "node index.js"
   },
   "repository": {
