@@ -8,8 +8,9 @@
     "lint": "eslint *.js src",
     "depcheck": "depcheck",
     "seccheck": "nsp check",
-    "pkg": "pkg . --out-path ./build/",
-    "start": "node index.js"
+    "build": "pkg . --out-path ./build/",
+    "start": "node index.js",
+    "clean": "rm -rf ./build"
   },
   "repository": {
     "type": "git",
@@ -30,12 +31,14 @@
     "async": "^2.6.0",
     "chalk": "^2.3.0",
     "dotenv": "^4.0.0",
+    "ip": "^1.1.5",
     "joi": "^13.0.2",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
-    "moment": "^2.19.4",
+    "moment": "^2.20.1",
     "mysql": "^2.15.0",
-    "nconf": "^0.9.1",
+    "nconf": "^0.10.0",
+    "node-forge": "^0.7.1",
     "pg": "^7.4.0",
     "printf": "^0.2.5",
     "progress-stream": "^2.0.0",
@@ -54,7 +57,7 @@
   "pkg": {
     "assets": [
       "mappings/*.json",
-      "src/importer/sql/**/*.sql"
+      "examples/*.env"
     ]
   },
   "bin": "./index.js"

@@ -147,6 +147,13 @@ function load(callback) {
   });
 }
 
+function isInit() {
+  nconf.argv();
+
+  return nconf.get('init');
+}
+
 module.exports = {
   load,
+  isInit,
 };

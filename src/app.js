@@ -1,4 +1,5 @@
 const exporter = require('./exporter');
+const initializer = require('./initializer');
 const config = require('./config');
 const configureLogger = require('./configureLogger');
 
@@ -10,7 +11,7 @@ const configureLogger = require('./configureLogger');
  * 1: Configuration Failure
  * 2: Exporter Failure
  */
-function run() {
+function runExporter() {
   // Load the configuration values.
   config.load((errConfig, configValues) => {
     if (errConfig) {
@@ -31,6 +32,24 @@ function run() {
       process.exit(0);
     });
   });
+}
+
+function runInitializer() {
+  console.log('Running Initializer');
+  initializer.run((err, res) => {
+    if (err) {
+      process.exit(3);
+    }
+    process.exit(0);
+  });
+}
+
+function run() {
+  if (config.isInit()) {
+    runInitializer();
+  } else {
+    runExporter();
+  }
 }
 
 module.exports = {

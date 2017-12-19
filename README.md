@@ -15,12 +15,14 @@ The following requirements must be met to run the EMR Exporter:
 For production usage, it is recommended to use one of the pre-compiled releases. These releases are
 distributed as a single executable file that have no dependencies.
 
-1. Download the application appropriate to the OS from the release page.
-2. Create a public/private key pair.
-3. Create a configuration file
-4. Edit the configuration file. Specifically update the database and target.
-5. Ensure that the working directory has appropriate permissions.
-6. Send the public key and ip information to the remote server.
+On the EMR Server:
+1. Download the executable appropriate to the OS from the release page and save to an appropriate location.
+2. Open a command prompt. Run the executable with --init flag (eg ./emr-exporter-win.exe --init)
+3. Wait for the initialization to complete. It may take a minute to generate secure keys.
+4. Edit the generated .env file. Specifically, update the source and target sections.
+5. Add the Postgres service user (eg NETWORK SERVICE) to have read/write access to the generated working dir.
+6. Send the public ip address to the ??
+7. Run the application manually to ensure it works (eg ./emr-exporter-win.exe)
 
 ### Commands
 
@@ -30,7 +32,7 @@ distributed as a single executable file that have no dependencies.
 | `npm start`        | Run the exporter.                                                 |
 | `npm test`         | Run the automated test: which don't exist. Anyone with free time? |
 | `npm outdated`     | Check for outdated packages.                                      |
-| `npm run pkg`      | Create the packaged executables.                                  |
+| `npm run build`    | Compile the packaged executables.                                  |
 | `npm run lint`     | Check the coding style using eslint and the Airbnb styleguide.    |
 | `npm run depcheck` | Check the project for dependency issues.                          |
 | `npm run seccheck` | Check the project for known security vulnerabilities.             |
