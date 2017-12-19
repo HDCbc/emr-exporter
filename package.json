@@ -1,0 +1,60 @@
+{
+  "name": "emr-exporter",
+  "version": "1.0.0",
+  "description": "Vendor agnostic application to export Universal Schema data from an Electronic Medical Record database and securely transfer results to a remote server.",
+  "main": "index.js",
+  "scripts": {
+    "doc": "jsdoc -c jsdoc.json",
+    "lint": "eslint *.js src",
+    "depcheck": "depcheck",
+    "seccheck": "nsp check",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HDCbc/emr-exporter.git"
+  },
+  "keywords": [
+    "HDC",
+    "Exporter"
+  ],
+  "author": "Jonathan Zacharuk <jzacharuk@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/HDCbc/emr-exporter/issues"
+  },
+  "homepage": "https://github.com/HDCbc/emr-exporter#readme",
+  "dependencies": {
+    "archiver": "^2.1.0",
+    "async": "^2.6.0",
+    "chalk": "^2.3.0",
+    "dotenv": "^4.0.0",
+    "joi": "^13.0.2",
+    "lodash": "^4.17.4",
+    "mkdirp": "^0.5.1",
+    "moment": "^2.19.4",
+    "mysql": "^2.15.0",
+    "nconf": "^0.9.1",
+    "pg": "^7.4.0",
+    "printf": "^0.2.5",
+    "progress-stream": "^2.0.0",
+    "rimraf": "^2.6.2",
+    "ssh2": "^0.5.5",
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "depcheck": "^0.6.8",
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "jsdoc": "^3.5.5",
+    "nsp": "^3.1.0"
+  },
+  "pkg": {
+    "assets": [
+      "mappings/*.json",
+      "src/importer/sql/**/*.sql"
+    ]
+  },
+  "bin": "./index.js"
+}

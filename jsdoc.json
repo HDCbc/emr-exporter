@@ -1,0 +1,18 @@
+{
+  "opts": {
+    "template": "templates/default",
+    "encoding": "utf8",
+    "destination": "./docs/",
+    "recurse": true
+  },
+  "source": {
+    "include": ".",
+    "exclude": [ "node_modules" ],
+    "includePattern": ".+\\.js$"
+  },
+  "plugins": [],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  }
+}
