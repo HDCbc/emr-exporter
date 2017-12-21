@@ -498,7 +498,8 @@ function run(options, callback) {
   const timeString = moment().format(dateFormat);
   const tempExportDir = path.join(path.dirname(process.execPath), workingDir, timeString);
   const exportFile = path.join(path.dirname(process.execPath), workingDir, `${timeString}.${compressFormat}`);
-  const remoteFile = path.join(target.path, path.basename(exportFile));
+  // Note that we hardcode the path to posix (eg linux remote endpoint)
+  const remoteFile = path.posix.join(target.path, path.basename(exportFile));
 
   // Mask the password before logging.
   const logOptions = Object.assign({}, options, {
