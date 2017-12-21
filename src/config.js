@@ -92,6 +92,7 @@ function validate(config, callback) {
     source: Joi.object().keys({
       dialect: Joi.string(),
       host: Joi.string(),
+      port: Joi.number().integer().min(1),
       database: Joi.string(),
       user: Joi.string(),
       password: Joi.string(),
