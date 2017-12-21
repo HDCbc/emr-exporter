@@ -16,7 +16,7 @@ For production usage, it is recommended to use one of the pre-compiled releases.
 distributed as a single executable file that have no dependencies.
 
 On the EMR Server:
-1. Download the executable appropriate to the OS from the release page and save to an appropriate location.
+1. Download the executable appropriate to the OS from the [Release](https://github.com/HDCbc/emr-exporter/releases) page and save to an appropriate location.
 2. Open a command prompt. Run the executable with --init flag (eg ./emr-exporter-win.exe --init)
 3. Wait for the initialization to complete. It may take a minute to generate secure keys.
 4. Edit the generated .env file. Specifically, update the source and target sections.
