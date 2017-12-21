@@ -241,12 +241,13 @@ function initConnection(config, callback) {
  */
 function loadMappingFile(mappingName, callback) {
   const start = Date.now();
-  logger.info('Load Mapping Started', { mappingName });
 
   // The mapping files are json files that should be located in /project/mapping.
   // This directory should be included as in pkg.assets within package.json so they can be read
   // once the source code is packaged into an executable.
   const mappingPath = path.join(__dirname, '../mappings', `${mappingName}.json`);
+
+  logger.info('Load Mapping Started', { mappingName, mappingPath });
 
   fs.readFile(mappingPath, (err, res) => {
     const elapsedSec = (Date.now() - start) / 1000;
