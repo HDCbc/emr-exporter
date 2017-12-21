@@ -101,7 +101,6 @@ function validate(config, callback) {
       port: Joi.number(),
       username: Joi.string(),
       privatekey: Joi.string(),
-      passphrase: Joi.string(),
       path: Joi.string(),
     }),
     logger: Joi.object().keys({

@@ -343,7 +343,6 @@ function readFile(filepath, callback) {
  * @param target - The connection information for the remote server.
  * @param target.host - The hostname of the remote server.
  * @param target.username - The username that exists on the remote server.
- * @param target.passphrase - The passphrase used to unlock the private key.
  * @param remotePath - The path to send the file to on the remote server.
  * @param privateKey - The string content of the private key.
  * @param callback - A callback to call once the function is complete.
@@ -367,7 +366,6 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
     host: target.host,
     port: target.port,
     username: target.username,
-    passphrase: target.passphrase,
     privateKey,
   };
 
@@ -498,14 +496,13 @@ function run(options, callback) {
   } = options;
 
   const timeString = moment().format(dateFormat);
-  const tempExportDir = path.join(__dirname, '../', workingDir, timeString);
-  const exportFile = path.join(tempExportDir, `${timeString}.${compressFormat}`);
+  const tempExportDir = path.join(path.dirname(process.execPath), workingDir, timeString);
+  const exportFile = path.join(path.dirname(process.execPath), workingDir, `${timeString}.${compressFormat}`);
   const remoteFile = path.join(target.path, path.basename(exportFile));
 
-  // Mask the password and passphrase before logging.
+  // Mask the password before logging.
   const logOptions = Object.assign({}, options, {
     source: Object.assign({}, options.source, { password: 'XXX' }),
-    target: Object.assign({}, options.target, { passphrase: 'XXX' }),
     tempExportDir,
     exportFile,
     remoteFile,

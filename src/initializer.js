@@ -47,7 +47,7 @@ function generateKey(bits, pubKeyPath, privKeyPath, callback) {
     console.log();
     console.log('Server IP');
     console.log(ip.address());
-    
+
 
     async.series([
       async.apply(fs.writeFile, pubKeyPath, pubKey),
@@ -58,6 +58,22 @@ function generateKey(bits, pubKeyPath, privKeyPath, callback) {
   });
 }
 
+function createEnv(a, callback) {
+  if (!fs.existsSync('.env')) {
+    const innerPath = path.join(__dirname, '../examples/full.env');
+    // console.log('innerPath', innerPath);
+    const content = fs.readFileSync(innerPath).toString();
+    const outputPath = path.join(path.dirname(process.execPath), '.env');
+    console.log('Copying .env', innerPath, content.length, outputPath);
+    fs.writeFile(outputPath, content, callback);
+    // console.log('inner content', fs.readFileSync(innerPath).toString());
+    // fs.copyFileSync(innerPath, path.join(process.cwd(), '.env'));
+  } else {
+    console.log('Skipping .env');
+    callback(null);
+  }
+}
+
 function run(callback) {
   // console.log('readdir', fs.readdirSync('C:\\snapshot\\emr-exporter\\'));
   // console.log('readdir', fs.readdirSync('C:\\snapshot\\emr-exporter\\examples'));
@@ -65,29 +81,10 @@ function run(callback) {
     async.apply(makeDir, './ssh'),
     async.apply(makeDir, './logs'),
     async.apply(makeDir, './working'),
+    async.apply(createEnv, 'a'),
     async.apply(generateKey, 4096, './ssh/id_rsa.pub', './ssh/id_rsa'),
   ], callback);
 
-  // if (!fs.existsSync('./ssh')) {
-  //   mkdirp.sync('./ssh');
-  //   console.log('Creating ./ssh');
-  // } else {
-  //   console.log('Skipping ./ssh');
-  // }
-  //
-  // if (!fs.existsSync('./logs')) {
-  //   mkdirp.sync('./logs');
-  //   console.log('Creating ./logs');
-  // } else {
-  //   console.log('Skipping ./logs');
-  // }
-  //
-  // if (!fs.existsSync('./working')) {
-  //   mkdirp.sync('./working');
-  //   console.log('Creating ./working');
-  // } else {
-  //   console.log('Skipping ./working');
-  // }
   //
   // if (!fs.existsSync('.env')) {
   //   console.log('Copying .env');
