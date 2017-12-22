@@ -16,13 +16,14 @@ For production usage, it is recommended to use one of the pre-compiled releases.
 distributed as a single executable file that have no dependencies.
 
 On the EMR Server:
-1. Download the executable appropriate to the OS from the [Release](https://github.com/HDCbc/emr-exporter/releases) page and save to an appropriate location.
-2. Open a command prompt. Run the executable with --init flag (eg ./emr-exporter-win.exe --init)
+1. Download the executable from the [Release](https://github.com/HDCbc/emr-exporter/releases) page and save to an appropriate location. Releases are created for Windows, Linux and Mac OS.
+2. Open a command prompt and browse to the executable file. Run the executable with --init flag (eg ./emr-exporter-win.exe --init)
 3. Wait for the initialization to complete. It may take a minute to generate secure keys.
-4. Edit the generated .env file. Specifically, update the source and target sections.
-5. Add the Postgres service user (eg NETWORK SERVICE) to have read/write access to the generated working dir.
-6. Send the public ip address to the ??
+4. Email the output of the initialization script to the HDC. (TBD)
+5. Edit the generated .env file. Specifically, update the source and target sections.
+6. Add the Postgres service user (eg NETWORK SERVICE on Windows) to have read/write access to the generated working dir.
 7. Run the application manually to ensure it works (eg ./emr-exporter-win.exe)
+8. Schedule an automated tasks to run daily. This application should not require administrative access to run.
 
 ### Commands
 
