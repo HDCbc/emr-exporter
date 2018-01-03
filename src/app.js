@@ -38,8 +38,10 @@ function runInitializer() {
   console.log('Running Initializer');
   initializer.run((err, res) => {
     if (err) {
+      console.log('Run Successful');
       process.exit(3);
     }
+    console.log('ERROR: Run Error', err);
     process.exit(0);
   });
 }
