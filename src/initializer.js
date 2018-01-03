@@ -13,6 +13,7 @@ function makeDir(filepath, callback) {
         console.log(`Directory ${filepath} already exists`);
         return callback(null);
       }
+      console.log('ERROR: Unable to create directory', filepath, err);
       return callback(err);
     }
     console.log(`Directory ${filepath} created`);
@@ -35,6 +36,7 @@ function generateKey(bits, pubKeyPath, privKeyPath, callback) {
 
   forge.pki.rsa.generateKeyPair(parameters, (err, keypair) => {
     if (err) {
+      console.log('ERROR: Unable to generate keypair', err);
       return callback(err);
     }
 
