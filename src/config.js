@@ -19,7 +19,7 @@ function get() {
   nconf.overrides({
     compressFormat: 'zip',
     dateFormat: 'YYYY_MM_DD_HH_mm_ss',
-    workingDirMode: '770',
+    workingDirMode: '0770',
   });
 
   // The command line arguments have a high priority.
