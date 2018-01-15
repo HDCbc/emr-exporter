@@ -57,15 +57,16 @@ function compressDirectory(inputDir, outputPath, format, callback) {
  * Create a directory.
  *
  * @param dir - The path to the directory to create.
- * @param mode - The mode (chmod) to set the directory to.
+ * @param mode - The mode (chmod) to set the directory to. Will be converted to octal.
  * @param callback - A callback to call one the function is complete.
  * @param callback.err - If failed, the error.
  */
 function createDirectory(dir, mode, callback) {
   const start = Date.now();
-  logger.info('Create Directory Started', { dir, mode });
+  const octalMode = parseInt(mode, 8);
+  logger.info('Create Directory Started', { dir, mode, octalMode });
 
-  mkdirp(dir, { mode }, (err) => {
+  mkdirp(dir, { mode: octalMode }, (err) => {
     const elapsedSec = (Date.now() - start) / 1000;
     if (err) {
       logger.error('Create Directory Failure', err);
