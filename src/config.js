@@ -113,7 +113,7 @@ function validate(config, callback) {
       tailable: Joi.boolean(),
     }),
     compressFormat: Joi.string().regex(/^(tar|zip)$/),
-    workingDirMode: Joi.string().regex(/^(0|1|2|3|4|5|6|7){3}$/),
+    workingDirMode: Joi.string().regex(/^(0|1|2|3|4|5|6|7){4}$/),
     dateFormat: Joi.string(),
   });
 
