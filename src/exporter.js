@@ -12,6 +12,31 @@ const rimraf = require('rimraf');
 const ssh2 = require('ssh2');
 
 /**
+ * Change the permissions (mode) of a file or directory.
+ *
+ * @param filepath - The path of the file or directory.
+ * @param mode - The mode in string format (eg '770')
+ * @param callback - A callback to call one the function is complete.
+ * @param callback.err - If failed, the error.
+ */
+function changePermissions(filepath, mode, callback) {
+  const start = Date.now();
+  const octalMode = parseInt(mode, 8);
+  logger.info('Change Permission Started', { filepath, mode, octalMode });
+
+  fs.chmod(filepath, octalMode, (err) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Change Permission Failure', err);
+      return callback(err);
+    }
+    logger.info('Change Permission Success', { elapsedSec });
+    return callback(null);
+  });
+}
+
+
+/**
  * Compress all of the files in a directory into a single file.
  *
  * @param inputDir - The path to the input directory.
@@ -57,16 +82,14 @@ function compressDirectory(inputDir, outputPath, format, callback) {
  * Create a directory.
  *
  * @param dir - The path to the directory to create.
- * @param mode - The mode (chmod) to set the directory to. Will be converted to octal.
  * @param callback - A callback to call one the function is complete.
  * @param callback.err - If failed, the error.
  */
-function createDirectory(dir, mode, callback) {
+function createDirectory(dir, callback) {
   const start = Date.now();
-  const octalMode = parseInt(mode, 8);
-  logger.info('Create Directory Started', { dir, mode, octalMode });
+  logger.info('Create Directory Started', { dir });
 
-  mkdirp(dir, { mode: octalMode }, (err) => {
+  mkdirp(dir, (err) => {
     const elapsedSec = (Date.now() - start) / 1000;
     if (err) {
       logger.error('Create Directory Failure', err);
@@ -385,7 +408,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   conn.on('ready', () => {
     conn.sftp((err, sftp) => {
       if (err) {
-        logger.error('Transfer File Failed', err);
+        logger.error('Transfer File Failed (sftp)', err);
         return callback(err);
       }
 
@@ -393,20 +416,27 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       const writeStream = sftp.createWriteStream(remotePath);
 
       writeStream.on('close', () => {
+        logger.info('Transfer File Closed');
+      });
+
+      writeStream.on('error', (errWs) => {
+        logger.error('Transfer File Failed (writeStream)', errWs);
+        return callback(errWs);
+      });
+
+      writeStream.on('end', () => {
+        logger.verbose('Transfer File End');
+        conn.close();
+      });
+
+      writeStream.on('finish', () => {
+        logger.verbose('Transfer File Finish');
+
         const elapsedSec = (Date.now() - start) / 1000;
         const transferredMB = (sizeBytes / 1024 / 1024).toFixed(2);
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
         logger.info('Transfer File Success', { elapsedSec, transferredMB, speedMBPerSec });
         return callback(null);
-      });
-
-      writeStream.on('error', (errWs) => {
-        logger.error('Transfer File Failed', errWs);
-        return callback(errWs);
-      });
-
-      writeStream.on('end', () => {
-        conn.close();
       });
 
       // Initiate transfer of file
@@ -523,10 +553,14 @@ function run(options, callback) {
     }],
     // Create the temporary export directory.
     exportDir: ['wait', (res, cb) => {
-      createDirectory(tempExportDir, workingDirMode, cb);
+      createDirectory(tempExportDir, cb);
+    }],
+    // Chmod the temporary export directory.
+    exportDirMode: ['exportDir', (res, cb) => {
+      changePermissions(tempExportDir, workingDirMode, cb);
     }],
     // Load the mapping file content.
-    mapping: ['exportDir', (res, cb) => {
+    mapping: ['exportDirMode', (res, cb) => {
       loadMappingFile(mapping, cb);
     }],
     // Parse the mapping file into a javascript object.
