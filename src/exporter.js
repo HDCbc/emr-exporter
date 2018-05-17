@@ -183,6 +183,31 @@ function exportData(tasks, parallelLimit, callback) {
 }
 
 /**
+ * Writes a file to the filesystem.
+ *
+ * @param filepath - The path of the file.
+ * @param content - The content to write into the file..
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ * @param callback.res - Always null.
+ */
+function writeFile(filepath, content, callback) {
+  const start = Date.now();
+
+  logger.info('Write File Started', { filepath });
+
+  fs.writeFile(filepath, content, (err) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Write File Failure', err);
+      return callback(err);
+    }
+    logger.info('Write File Success', { elapsedSec });
+    return callback(null);
+  });
+}
+
+/**
  * Run a SQL query that exports the results to a CSV.
  *
  * @param db - The database object to run the query against.
@@ -509,6 +534,7 @@ function waitForConnection(db, times, interval, callback) {
  */
 function run(options, callback) {
   const start = Date.now();
+  
   logger.info(_.repeat('=', 160));
   logger.info('Run Started');
 
@@ -575,8 +601,12 @@ function run(options, callback) {
     export: ['tasks', (res, cb) => {
       exportData(res.tasks, parallelExtracts, cb);
     }],
+    // Also export the mapping file.
+    exportMapping: ['export', (res, cb) => {
+      writeFile(path.join(tempExportDir, 'mapping.json'), mapping, cb);
+    }],
     // Compress the csv directory to a zip file.
-    compress: ['export', (res, cb) => {
+    compress: ['exportMapping', (res, cb) => {
       compressDirectory(tempExportDir, exportFile, compressFormat, cb);
     }],
     // Read the private key file.

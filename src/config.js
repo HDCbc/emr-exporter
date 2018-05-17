@@ -51,6 +51,7 @@ function get() {
     },
   });
 
+
   // Create the configuration object.
   // Note that we convert the underscore format to a more javascript friendly camel case format.
   const config = {
@@ -153,7 +154,14 @@ function isInit() {
   return nconf.get('init');
 }
 
+function isSetPassword() {
+  nconf.argv();
+
+  return nconf.get('password');
+}
+
 module.exports = {
   load,
   isInit,
+  isSetPassword,
 };

@@ -5,6 +5,7 @@ const moment = require('moment');
 const path = require('path');
 const printf = require('printf');
 const winston = require('winston');
+require('winston-log-and-exit');
 
 // TODO Document and Clean
 
@@ -112,12 +113,15 @@ module.exports = ((config) => {
     formatter: createFormatter(colorEnabled),
   });
 
+  const consoleTransport = createConsoleTransport(true);
+  const fileTransport = createFileTransport(false);
+  
   winston.configure({
     level,
 
     transports: [
-      createConsoleTransport(true),
-      createFileTransport(false),
+      consoleTransport,
+      fileTransport,
     ],
   });
 
