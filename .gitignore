@@ -8,7 +8,6 @@ build
 coverage
 docs
 logs
-mappings
 node_modules
 ssh
 working
