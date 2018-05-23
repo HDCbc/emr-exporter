@@ -1,7 +1,7 @@
 [
     {
         "target": "Clinic",
-        "query": "SELECT clinic_name AS 'name', clinic_name AS 'hdc_reference', clinic_name AS 'emr_id', NULL AS 'emr_reference' FROM clinic"
+        "query": "SELECT clinic_name AS 'name', clinic_name AS 'hdc_reference', clinic_name AS 'emr_id', NULL AS 'emr_reference', 'OSCAR' as emr FROM clinic"
     },
     {
         "target": "Practitioner",
