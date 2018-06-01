@@ -25,7 +25,7 @@
     },
     {
         "target": "EntryState.001",
-        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.001.001",
@@ -57,7 +57,7 @@
     },
     {
         "target": "EntryState.002",
-        "query": "SELECT 'allergies' AS source_table, a.allergyid AS emr_id, IF(a.archived = 1, 'inactive', 'active') AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM allergies a"
+        "query": "SELECT 'allergies' AS source_table, 002 as entry_id, a.allergyid AS emr_id, IF(a.archived = 1, 'inactive', 'active') AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM allergies a"
     },
     {
         "target": "EntryAttribute.002.001",
@@ -89,7 +89,7 @@
     },
     {
         "target": "EntryState.003",
-        "query": "SELECT 'billingmaster' AS source_table, bm.billingmaster_no AS emr_id, billingtype AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON (bm.billing_no = b.billing_no) WHERE bm.billingstatus NOT LIKE 'D'"
+        "query": "SELECT 'billingmaster' AS source_table, 003 as entry_id, bm.billingmaster_no AS emr_id, billingtype AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON (bm.billing_no = b.billing_no) WHERE bm.billingstatus NOT LIKE 'D'"
     },
     {
         "target": "EntryAttribute.003.001",
@@ -117,7 +117,7 @@
     },
     {
         "target": "EntryState.005",
-        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no AS emr_id, patient_status AS state, lastupdatedate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT demographic_no AS emr_id, patient_status AS state, lastupdatedate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 005 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no AS emr_id, patient_status AS state, lastupdatedate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT demographic_no AS emr_id, patient_status AS state, lastupdatedate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.005.001",
@@ -149,7 +149,7 @@
     },
     {
         "target": "EntryState.006",
-        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 006 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.006.001",
@@ -169,7 +169,7 @@
     },
     {
         "target": "EntryState.007",
-        "query": "SELECT 'casemgmt_note' AS source_table, cn.note_id AS emr_id, cn.signed AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
+        "query": "SELECT 'casemgmt_note' AS source_table, 007 as entry_id, cn.note_id AS emr_id, cn.signed AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
     },
     {
         "target": "EntryAttribute.007.001",
@@ -205,7 +205,7 @@
     },
     {
         "target": "EntryState.009",
-        "query": "SELECT 'measurements' AS source_table , id AS emr_id , 'A' AS state , DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, dateEntered)), '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM measurements"
+        "query": "SELECT 'measurements' AS source_table, 009 as entry_id, id AS emr_id , 'A' AS state , DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, dateEntered)), '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM measurements"
     },
     {
         "target": "EntryAttribute.009.001",
@@ -241,7 +241,7 @@
     },
     {
         "target": "EntryState.011",
-        "query": "SELECT 'preventions' AS source_table, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 011 as entry_id, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryAttribute.011.001",
@@ -281,7 +281,7 @@
     },
     {
         "target": "EntryState.012",
-        "query": "SELECT 'drugs' AS source_table, drugid AS emr_id, IF( archived = 1, 'Archived', 'Not-Archived' ) AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, written_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table, 012 as entry_id, drugid AS emr_id, IF( archived = 1, 'Archived', 'Not-Archived' ) AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, written_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
     },
     {
         "target": "EntryAttribute.012.001",
@@ -377,7 +377,7 @@
     },
     {
         "target": "EntryState.014",
-        "query": "SELECT 'dxresearch' AS source_table, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, dxresearch_no AS emr_id, status AS state, case when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') <> DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status = 'A' then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status <> 'A' then DATE_FORMAT(TIMESTAMPADD(MICROSECOND, +1, update_date), '%Y-%m-%dT%T.%fZ') end as effective_date, null AS emr_reference FROM dxresearch"
+        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, dxresearch_no AS emr_id, status AS state, case when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') <> DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status = 'A' then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status <> 'A' then DATE_FORMAT(TIMESTAMPADD(MICROSECOND, +1, update_date), '%Y-%m-%dT%T.%fZ') end as effective_date, null AS emr_reference FROM dxresearch"
     },
     {
         "target": "EntryAttribute.014.001",
@@ -393,7 +393,7 @@
     },
     {
         "target": "EntryState.015",
-        "query": "SELECT 'preventions' AS source_table, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryAttribute.015.001",
@@ -421,7 +421,7 @@
     },
     {
         "target": "EntryState.017",
-        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.017.001",
