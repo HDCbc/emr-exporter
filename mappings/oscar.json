@@ -89,7 +89,7 @@
     },
     {
         "target": "EntryState.003",
-        "query": "SELECT 'billingmaster' AS source_table, 003 as entry_id, bm.billingmaster_no AS emr_id, billingtype AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON (bm.billing_no = b.billing_no) WHERE bm.billingstatus NOT LIKE 'D'"
+        "query": "SELECT 'billingmaster' AS source_table, 003 AS entry_id, bm.billingmaster_no AS emr_id, 'AC' AS state, Date_format(Timestampadd(microsecond, -1, Timestampadd(day, 1, bm.createdate)), '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON ( bm.billing_no = b.billing_no ) WHERE bm.billingstatus NOT LIKE 'D'"
     },
     {
         "target": "EntryAttribute.003.001",
