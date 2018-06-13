@@ -377,15 +377,15 @@
     },
     {
         "target": "EntryState.014",
-        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, status AS state, case when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') <> DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status = 'A' then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status <> 'A' then DATE_FORMAT(TIMESTAMPADD(MICROSECOND, +1, update_date), '%Y-%m-%dT%T.%fZ') end as effective_date, null AS emr_reference FROM dxresearch"
+        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, status AS state, update_date as effective_date, null AS emr_reference FROM dxresearch"
     },
     {
         "target": "EntryAttribute.014.001",
-        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, start_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM dxresearch"
+        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, start_date AS effective_date, NULL AS emr_reference FROM dxresearch"
     },
     {
         "target": "EntryAttribute.014.002",
-        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, start_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM dxresearch"
+        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, start_date AS effective_date, NULL AS emr_reference FROM dxresearch"
     },
     {
         "target": "Entry.015",
