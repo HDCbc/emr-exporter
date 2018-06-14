@@ -281,7 +281,7 @@
     },
     {
         "target": "EntryState.012",
-        "query": "SELECT 'drugs' AS source_table, 012 as entry_id, drugid AS emr_id, IF( archived = 1, 'Archived', 'Not-Archived' ) AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, written_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table, 012 AS entry_id, drugid AS emr_id, IF(archived = 1, 'Archived', 'Not-Archived') AS state, Date_format(Timestampadd(microsecond, -1, Timestampadd(day, 1, COALESCE(written_date, create_date))), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
     },
     {
         "target": "EntryAttribute.012.001",
@@ -381,10 +381,6 @@
     },
     {
         "target": "EntryAttribute.014.001",
-        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, start_date AS effective_date, NULL AS emr_reference FROM dxresearch"
-    },
-    {
-        "target": "EntryAttribute.014.002",
         "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, dxresearch_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, start_date AS effective_date, NULL AS emr_reference FROM dxresearch"
     },
     {
