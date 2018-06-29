@@ -89,7 +89,7 @@
     },
     {
         "target": "EntryState.005",
-        "query": "SELECT 'demographic' AS source_table, 001 AS entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no as emr_id, patient_status as state, date_joined effective_date, NULL as emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 005 AS entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no as emr_id, patient_status as state, date_joined effective_date, NULL as emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.005.001",
