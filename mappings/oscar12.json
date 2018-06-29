@@ -129,7 +129,7 @@
     },
     {
         "target": "EntryAttribute.007.002",
-        "query": "SELECT 'casemgmt_note' AS source_table, 7.002 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, CONCAT( lli.label, ',', a.reason ) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.observation_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, a.appointment_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote IN (0,1) GROUP BY uuid ) note ON (note.note_id = cn.note_id) INNER JOIN appointment a ON (cn.appointmentNo > 0 AND a.appointment_no = cn.appointmentNo) INNER JOIN LookupListItem lli ON(a.reasonCode > 0 AND a.reasonCode = lli.id)"
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.002 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, a.reason AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.observation_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, a.appointment_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote IN (0,1) GROUP BY uuid ) note ON (note.note_id = cn.note_id) INNER JOIN appointment a ON (cn.appointmentNo > 0 AND a.appointment_no = cn.appointmentNo)"
     },
     {
         "target": "EntryAttribute.007.003",
