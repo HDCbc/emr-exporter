@@ -84,34 +84,6 @@
         "query": "SELECT 'allergies' AS source_table , 2.008 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , IF( a.archived = 1, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ'), NULL ) AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
     },
     {
-        "target": "Entry.003",
-        "query": "SELECT 'billingmaster' AS source_table, 003 as entry_id, billingmaster_no AS emr_id, demographic_no AS emr_patient_id FROM billingmaster WHERE billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryState.003",
-        "query": "SELECT 'billingmaster' AS source_table, 003 AS entry_id, bm.billingmaster_no AS emr_id, 'AC' AS state, Date_format(Timestampadd(microsecond, -1, Timestampadd(day, 1, bm.createdate)), '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON ( bm.billing_no = b.billing_no ) WHERE bm.billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryAttribute.003.001",
-        "query": "SELECT 'billingmaster' AS source_table , 3.001 AS attribute_id , demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , STR_TO_DATE(service_date, '%Y%m%d' ) )) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , createdate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster WHERE billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryAttribute.003.002",
-        "query": "SELECT 'billingmaster' AS source_table , 3.002 AS attribute_id , demographic_no AS emr_entry_id , 'OSCAR' AS code_system , bm.billingstatus AS code_value , bt.displayNameExt AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , createdate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm JOIN billingstatus_types bt ON (bt.billingstatus = bm.billingstatus) WHERE bm.billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryAttribute.003.003",
-        "query": "SELECT 'billingmaster' AS source_table , 3.003 AS attribute_id , bm1.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , IFNULL( bh1.creation_date, bm1.createdate ) ) ) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm1.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , IFNULL( bh1.creation_date, bm1.createdate ) ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , lastHistory.historyID AS emr_reference FROM billing_history bh1 RIGHT JOIN ( SELECT MAX( bh.id ) 'historyID' FROM billingmaster bm LEFT JOIN billing_history bh ON (bm.billingmaster_no = bh.billingmaster_no) LEFT JOIN billingstatus_types bt ON (bt.billingstatus = bh.billingstatus) GROUP BY bm.billingmaster_no ) lastHistory ON( lastHistory.historyID = bh1.id ) RIGHT JOIN billingmaster bm1 ON(bm1.billingmaster_no = bh1.billingmaster_no) WHERE bm1.billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryAttribute.003.004",
-        "query": "SELECT 'billingmaster' AS source_table , 3.004 AS attribute_id , bm.demographic_no AS emr_entry_id , 'MSP' AS code_system , bm.billing_code AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D'"
-    },
-    {
-        "target": "EntryAttribute.003.005",
-        "query": "SELECT 'billingmaster' AS source_table , 3.005 AS attribute_id , bm.demographic_no AS emr_entry_id , 'MSP/ICD9' AS code_system , bm.dx_code1 AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D'"
-    },
-    {
         "target": "Entry.005",
         "query": "SELECT 'demographic' AS `source_table`, 005 as entry_id, demographic_no AS `emr_id`, demographic_no AS `emr_patient_id` FROM demographic"
     },
