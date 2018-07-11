@@ -261,7 +261,7 @@
     },
     {
         "target": "EntryAttribute.012.002",
-        "query": "SELECT 'drugs' AS source_table , 12.002 AS attribute_id , d.drugid AS emr_entry_id , 'ATC' AS code_system , ATC AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , written_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table , 12.002 AS attribute_id , d.drugid AS emr_entry_id , 'ATC' AS code_system , ATC AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , written_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL ) AND ATC IS NOT NULL"
     },
     {
         "target": "EntryAttribute.012.003",
@@ -285,7 +285,7 @@
     },
     {
         "target": "EntryAttribute.012.008",
-        "query": "SELECT 'drugs' AS source_table , 12.008 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.rx_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table, 12.002 AS attribute_id, d.drugid AS emr_entry_id, 'ATC' AS code_system, ATC AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, d.drugid AS emr_id, CAST(COALESCE(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) AS DATE) AS effective_date, NULL AS emr_reference FROM drugs d WHERE (archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL) AND ATC IS NOT NULL"
     },
     {
         "target": "EntryAttribute.012.009",
