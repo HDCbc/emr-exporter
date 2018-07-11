@@ -89,7 +89,7 @@
     },
     {
         "target": "EntryState.005",
-        "query": "SELECT 'demographic' AS source_table, 005 AS entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no as emr_id, patient_status as state, date_joined effective_date, NULL as emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 005 AS entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM (SELECT demographic_no as emr_id, patient_status as state, date_joined effective_date, NULL as emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive) AS t WHERE t.effective_date IS NOT NULL and t.effective_date > '1900-01-01'"
     },
     {
         "target": "EntryAttribute.005.001",
@@ -285,7 +285,7 @@
     },
     {
         "target": "EntryAttribute.012.008",
-        "query": "SELECT 'drugs' AS source_table, 12.002 AS attribute_id, d.drugid AS emr_entry_id, 'ATC' AS code_system, ATC AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, d.drugid AS emr_id, CAST(COALESCE(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) AS DATE) AS effective_date, NULL AS emr_reference FROM drugs d WHERE (archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL) AND ATC IS NOT NULL"
+        "query": "SELECT 'drugs' AS source_table , 12.008 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.rx_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
     },
     {
         "target": "EntryAttribute.012.009",
