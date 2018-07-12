@@ -269,7 +269,7 @@
     },
     {
         "target": "EntryAttribute.012.004",
-        "query": "SELECT 'drugs' AS source_table , 12.004 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , TRIM( SUBSTRING_INDEX( SUBSTRING_INDEX(special, '\n', 2), '\n', -1) ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table , 12.004 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , LEFT(TRIM( SUBSTRING_INDEX( SUBSTRING_INDEX(special, '\n', 2), '\n', -1) ), 100) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
     },
     {
         "target": "EntryAttribute.012.005",
