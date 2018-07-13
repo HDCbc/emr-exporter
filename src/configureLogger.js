@@ -52,7 +52,7 @@ module.exports = ((config) => {
     const ctx = new chalk.constructor({ enabled: colorEnabled });
 
     const formatter = (options) => {
-      const time = moment().format('YYYY-MM-DD hh:mm:ss');
+      const time = moment().format('YYYY-MM-DD HH:mm:ss');
       let lvl = options.level.toUpperCase();
 
       // Note that we need to manually color the log (rather than just setting colorize) because
