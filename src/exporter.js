@@ -237,7 +237,7 @@ const exportQueryToCSV = (db, filepath, sql, callback) => {
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(3);
     const basename = path.basename(filepath);
 
-    logger.verbose('Export Query Complete', {
+    logger.verbose('Export Query Success', {
       basename,
       elapsedSec,
       rowCount: res.rows,
@@ -403,7 +403,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   // of a callback, and when an error callback is thrown, it calls them double. All in all the scp2
   // library does not seem to be very well maintained.
   const start = Date.now();
-  logger.info('Transfer File Start', {
+  logger.info('Transfer File Started', {
     input: filepath,
     output: remotePath,
     host: target.host,
@@ -433,7 +433,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   conn.on('ready', () => {
     conn.sftp((err, sftp) => {
       if (err) {
-        logger.error('Transfer File Failed (sftp)', err);
+        logger.error('Transfer File Failure (sftp)', err);
         return callback(err);
       }
 
@@ -445,7 +445,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       });
 
       writeStream.on('error', (errWs) => {
-        logger.error('Transfer File Failed (writeStream)', errWs);
+        logger.error('Transfer File Failure (writeStream)', errWs);
         return callback(errWs);
       });
 
@@ -455,8 +455,6 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       });
 
       writeStream.on('finish', () => {
-        logger.verbose('Transfer File Finish');
-
         const elapsedSec = (Date.now() - start) / 1000;
         const transferredMB = (sizeBytes / 1024 / 1024).toFixed(2);
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
@@ -470,7 +468,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   });
 
   conn.on('error', (err) => {
-    logger.error('Transfer File Failed', err);
+    logger.error('Transfer File Failure', err);
     return callback(err);
   });
 
