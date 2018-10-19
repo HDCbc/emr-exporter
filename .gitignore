@@ -11,3 +11,5 @@ logs
 node_modules
 ssh
 working
+
+src/secret.js
