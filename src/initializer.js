@@ -95,6 +95,16 @@ function createEnv(baseEnvPath, userConfig, callback) {
   console.log(' File .env created');
 }
 
+function requireQuestion(text, options) {
+  let answer;
+
+  while (!answer) {
+    answer = rl.question(text, options);
+  }
+
+  return answer;
+}
+
 function promptUserConfig(callback) {
   console.log('#####################################################################');
   console.log('# GATHERING CONNECTION INFO');
@@ -102,14 +112,10 @@ function promptUserConfig(callback) {
   console.log('');
   console.log('Specify the connection information that this application should');
   console.log('use to connect to the EMR database.');
-  // Mapping
-  const mappings = ['mois', 'oscar'];
-  const mappingIndex = rl.keyInSelect(mappings, 'EMR: ');
+  console.log();
 
-  if (mappingIndex === -1) {
-    return callback('Initialization Cancelled');
-  }
-  const mapping = mappings[mappingIndex];
+  // Mapping
+  const mapping = requireQuestion('EMR (mois/oscar): ', { limit: ['mois', 'oscar'] });
 
   let dbDialect;
   let dbHost;
@@ -125,11 +131,11 @@ function promptUserConfig(callback) {
     dbPort = '3306';
   }
 
-  const dbDatabase = rl.question('EMR Database Name: ');
-  const dbUser = rl.question('EMR Database Username: ');
-  const dbPass = rl.question('EMR Database Password: ', { hideEchoBack: true });
-  const endpointHost = rl.question('Endpoint IP: ');
-  const endpointPort = rl.question('Endpoint Port (22): ', { defaultInput: '22' });
+  const dbDatabase = requireQuestion('EMR Database Name: ');
+  const dbUser = requireQuestion('EMR Database Username: ');
+  const dbPass = requireQuestion('EMR Database Password: ', { hideEchoBack: true });
+  const endpointHost = requireQuestion('Endpoint IP: ');
+  const endpointPort = requireQuestion('Endpoint Port (22): ', { defaultInput: '22' });
 
   return callback(null, {
     dbDialect,
