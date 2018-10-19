@@ -575,12 +575,8 @@ function run(options, callback) {
     wait: ['database', (res, cb) => {
       waitForConnection(res.database, connectionAttempts, connectionInterval, cb);
     }],
-    // Run the pre-script to prepare the database
-    prepared: ['wait', (res, cb) => {
-      prepareDatabase(prepareFile, cb)
-    }],
     // Create the temporary export directory.
-    exportDir: ['prepared', (res, cb) => {
+    exportDir: ['wait', (res, cb) => {
       createDirectory(tempExportDir, cb);
     }],
     // Chmod the temporary export directory.

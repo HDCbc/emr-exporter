@@ -65,7 +65,6 @@ function get() {
     connectionAttempts: nconf.get('connectionAttempts'),
     connectionInterval: nconf.get('connectionInterval'),
     mapping: nconf.get('mapping'),
-    prepareFile: nconf.get('prepareFile'),
     source: nconf.get('source'),
     target: nconf.get('target'),
     compressFormat: nconf.get('compressFormat'),
@@ -96,7 +95,6 @@ function validate(config, callback) {
     connectionAttempts: Joi.number().integer().min(1),
     connectionInterval: Joi.number().integer().min(1),
     mapping: Joi.string(),
-    prepareFile: Joi.string(),
     source: Joi.object().keys({
       dialect: Joi.string(),
       host: Joi.string(),
