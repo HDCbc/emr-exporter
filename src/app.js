@@ -43,9 +43,11 @@ function runInitializer() {
   console.log('Running Initializer');
   initializer.run((err) => {
     if (err) {
+      console.log();
       console.error('Initialization Error', err);
       exit(3);
     }
+    console.log();
     console.log('Initialization Successful');
     exit(0);
   });
