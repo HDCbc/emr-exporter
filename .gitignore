@@ -9,5 +9,8 @@ coverage
 docs
 logs
 node_modules
+sandbox
 ssh
 working
+
+src/secret.js

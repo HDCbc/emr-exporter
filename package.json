@@ -42,9 +42,11 @@
     "pg": "^7.4.0",
     "printf": "^0.2.5",
     "progress-stream": "^2.0.0",
+    "readline-sync": "^1.4.9",
     "rimraf": "^2.6.2",
     "ssh2": "^0.5.5",
-    "winston": "^2.4.0"
+    "winston": "^2.4.0",
+    "winston-log-and-exit": "^1.0.6"
   },
   "devDependencies": {
     "depcheck": "^0.6.8",

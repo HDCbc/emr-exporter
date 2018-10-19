@@ -3,6 +3,11 @@ const initializer = require('./initializer');
 const config = require('./config');
 const configureLogger = require('./configureLogger');
 
+function exit(code) {
+  const logger = require('winston'); //eslint-disable-line
+  logger.log_and_exit('info', `Exit Code ${code}`, code);
+}
+
 /**
  * Run the application by loading the configuration and then running the exporter.
  *
@@ -26,23 +31,25 @@ function runExporter() {
     exporter.run(configValues, (errApp) => {
       // If an error occured in the application then exit with an error value.
       if (errApp) {
-        process.exit(2);
+        return exit(2);
       }
       // Otherwise exit successfully.
-      process.exit(0);
+      return exit(0);
     });
   });
 }
 
 function runInitializer() {
   console.log('Running Initializer');
-  initializer.run((err, res) => {
+  initializer.run((err) => {
     if (err) {
-      console.log('Run Successful');
-      process.exit(3);
+      console.log();
+      console.error('Initialization Error', err);
+      exit(3);
     }
-    console.log('ERROR: Run Error', err);
-    process.exit(0);
+    console.log();
+    console.log('Initialization Successful');
+    exit(0);
   });
 }
 

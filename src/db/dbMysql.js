@@ -6,7 +6,7 @@ const winston = require('winston');
 module.exports = (() => {
   let pool;
 
-  const init = (config, callback) => {
+  const init = (config) => {
     winston.verbose('db.init()');
     pool = mysql.createPool(config);
     callback(null);

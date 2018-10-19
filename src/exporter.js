@@ -35,7 +35,6 @@ function changePermissions(filepath, mode, callback) {
   });
 }
 
-
 /**
  * Compress all of the files in a directory into a single file.
  *
@@ -183,6 +182,31 @@ function exportData(tasks, parallelLimit, callback) {
 }
 
 /**
+ * Writes a file to the filesystem.
+ *
+ * @param filepath - The path of the file.
+ * @param content - The content to write into the file..
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ * @param callback.res - Always null.
+ */
+function writeFile(filepath, content, callback) {
+  const start = Date.now();
+
+  logger.info('Write File Started', { filepath });
+
+  fs.writeFile(filepath, content, (err) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Write File Failure', err);
+      return callback(err);
+    }
+    logger.info('Write File Success', { elapsedSec });
+    return callback(null);
+  });
+}
+
+/**
  * Run a SQL query that exports the results to a CSV.
  *
  * @param db - The database object to run the query against.
@@ -212,7 +236,7 @@ const exportQueryToCSV = (db, filepath, sql, callback) => {
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(3);
     const basename = path.basename(filepath);
 
-    logger.verbose('Export Query Complete', {
+    logger.verbose('Export Query Success', {
       basename,
       elapsedSec,
       rowCount: res.rows,
@@ -378,7 +402,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   // of a callback, and when an error callback is thrown, it calls them double. All in all the scp2
   // library does not seem to be very well maintained.
   const start = Date.now();
-  logger.info('Transfer File Start', {
+  logger.info('Transfer File Started', {
     input: filepath,
     output: remotePath,
     host: target.host,
@@ -408,7 +432,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   conn.on('ready', () => {
     conn.sftp((err, sftp) => {
       if (err) {
-        logger.error('Transfer File Failed (sftp)', err);
+        logger.error('Transfer File Failure (sftp)', err);
         return callback(err);
       }
 
@@ -420,7 +444,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       });
 
       writeStream.on('error', (errWs) => {
-        logger.error('Transfer File Failed (writeStream)', errWs);
+        logger.error('Transfer File Failure (writeStream)', errWs);
         return callback(errWs);
       });
 
@@ -430,8 +454,6 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       });
 
       writeStream.on('finish', () => {
-        logger.verbose('Transfer File Finish');
-
         const elapsedSec = (Date.now() - start) / 1000;
         const transferredMB = (sizeBytes / 1024 / 1024).toFixed(2);
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
@@ -445,7 +467,7 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
   });
 
   conn.on('error', (err) => {
-    logger.error('Transfer File Failed', err);
+    logger.error('Transfer File Failure', err);
     return callback(err);
   });
 
@@ -509,6 +531,7 @@ function waitForConnection(db, times, interval, callback) {
  */
 function run(options, callback) {
   const start = Date.now();
+  
   logger.info(_.repeat('=', 160));
   logger.info('Run Started');
 
@@ -519,6 +542,7 @@ function run(options, callback) {
     connectionInterval,
     dateFormat,
     mapping,
+    prepareFile,
     parallelExtracts,
     source,
     target,
@@ -575,8 +599,12 @@ function run(options, callback) {
     export: ['tasks', (res, cb) => {
       exportData(res.tasks, parallelExtracts, cb);
     }],
+    // Also export the mapping file.
+    exportMapping: ['export', (res, cb) => {
+      writeFile(path.join(tempExportDir, 'mapping.json'), mapping, cb);
+    }],
     // Compress the csv directory to a zip file.
-    compress: ['export', (res, cb) => {
+    compress: ['exportMapping', (res, cb) => {
       compressDirectory(tempExportDir, exportFile, compressFormat, cb);
     }],
     // Read the private key file.
