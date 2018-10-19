@@ -76,7 +76,7 @@ function createEnv(baseEnvPath, userConfig, callback) {
 
   console.log(' Encrypting Password');
   let encryptedPassword = password.encrypt(userConfig.dbPass, secret);
-  encryptedPassword = `enc:${encryptedPassword}`;
+  encryptedPassword = `ENC:${encryptedPassword}`;
 
   const innerPath = path.join(__dirname, baseEnvPath);
   let content = fs.readFileSync(innerPath).toString();
