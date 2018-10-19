@@ -147,7 +147,6 @@ function run(callback) {
   promptUserConfig((configErr, userConfig) => {
     if (configErr) {
       return callback(configErr);
-      return callback(err);
     }
 
     console.log();
@@ -162,18 +161,11 @@ function run(callback) {
       pubKey: ['workingDir', (params, cb) => generateKey(4096, './ssh/id_rsa.pub', './ssh/id_rsa', cb)],
       env: ['pubKey', (params, cb) => createEnv('../examples/full.env', userConfig, cb)],
     }, (err, res) => {
-    // async.series([
-    //   async.apply(makeDir, './ssh'),
-    //   async.apply(makeDir, './logs'),
-    //   async.apply(makeDir, './working'),
-    //   async.apply(generateKey, 4096, './ssh/id_rsa.pub', './ssh/id_rsa'),
-    //   async.apply(createEnv, '../examples/full.env', userConfig),
-    // ], (err, res) => {
       if (err) {
         console.error();
         console.error('#####################################################################');
         console.error('# ERROR');
-        console.error('#####################################################################');     
+        console.error('#####################################################################');
         console.error('Configuration could not be completed:');
         console.error(err);
         return callback(err);
@@ -182,7 +174,7 @@ function run(callback) {
       console.log();
       console.log('#####################################################################');
       console.log('# FINALIZING');
-      console.log('#####################################################################');        
+      console.log('#####################################################################');
       console.log();
       console.log('The following information is required by HDC to create a secure');
       console.log('connection between this application and the endpoint. This application');
@@ -195,6 +187,8 @@ function run(callback) {
       console.log();
       console.log('EMR Server IP:');
       console.log(ip.address());
+
+      return callback(null);
     });
   });
 }
