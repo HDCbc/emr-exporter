@@ -2,112 +2,201 @@
 const forge = require('node-forge');
 const fs = require('fs');
 const ip = require('ip');
-const mkdirp = require('mkdirp');
+const os = require('os');
 const path = require('path');
 const async = require('async');
+const rl = require('readline-sync');
+const password = require('./password');
+const secret = require('./secret');
 
 function makeDir(filepath, callback) {
+  console.log();
+  console.log(`Create Directory ${filepath}`);
+
   fs.mkdir(filepath, (err) => {
     if (err) {
       if (err.code === 'EEXIST') {
-        console.log(`Directory ${filepath} already exists`);
+        console.log(` Directory ${filepath} already exists`);
         return callback(null);
       }
-      console.log('ERROR: Unable to create directory', filepath, err);
+      console.error(' ERROR: Unable to create directory', filepath, err);
       return callback(err);
     }
-    console.log(`Directory ${filepath} created`);
+    console.log(` Directory ${filepath} created`);
     return callback(null);
-  })
+  });
 }
 
 function generateKey(bits, pubKeyPath, privKeyPath, callback) {
+  console.log();
+  console.log('Generate Public/Private Keys');
+
+  if (fs.existsSync(pubKeyPath) && fs.existsSync(privKeyPath)) {
+    console.log(` Keys ${pubKeyPath}, ${privKeyPath} already exist`);
+
+    const pubKey = fs.readFileSync(pubKeyPath).toString();
+
+    return callback(null, pubKey);
+  }
+
   const parameters = {
     bits,
     workers: -1, // Auto-detect web workers to accelerate generation.
   };
 
-  if (fs.existsSync(pubKeyPath) && fs.existsSync(privKeyPath)) {
-    console.log('Keys already exist');
-    return callback(null);
-  }
-
-  console.log('Generating Public/Private Keys');
-
-  forge.pki.rsa.generateKeyPair(parameters, (err, keypair) => {
+  console.log(` Generating ${bits} bit RSA Key Pair (this may take a few minutes)`);
+  return forge.pki.rsa.generateKeyPair(parameters, (err, keypair) => {
     if (err) {
-      console.log('ERROR: Unable to generate keypair', err);
+      console.error('ERROR: Unable to generate keypair', err);
       return callback(err);
     }
 
-    const pubKey = forge.ssh.publicKeyToOpenSSH(keypair.publicKey, 'emr server');
+    console.log(' Generated Key Pair');
+
+    const pubKey = forge.ssh.publicKeyToOpenSSH(keypair.publicKey, `EMR-${os.hostname()}`);
     const privKey = forge.pki.privateKeyToPem(keypair.privateKey);
 
-    console.log('The following information must be sent to systems@hdcbc.ca');
-    console.log('Public Key');
-    console.log(pubKey);
-    console.log();
-    console.log('Server IP');
-    console.log(ip.address());
+    fs.writeFileSync(pubKeyPath, pubKey);
+    console.log(` Saved Public Key (${pubKeyPath})`);
+    fs.writeFileSync(privKeyPath, privKey);
+    console.log(` Saved Private Key (${privKeyPath})`);
 
-
-    async.series([
-      async.apply(fs.writeFile, pubKeyPath, pubKey),
-      async.apply(fs.writeFile, privKeyPath, privKey),
-    ], callback);
-    // fs.writeFileSync(pubKeyPath, pubKey);
-    // fs.writeFileSync(privKeyPath, privKey);
+    return callback(null, pubKey);
   });
 }
 
-function createEnv(a, callback) {
-  if (!fs.existsSync('.env')) {
-    const innerPath = path.join(__dirname, '../examples/full.env');
-    // console.log('innerPath', innerPath);
-    const content = fs.readFileSync(innerPath).toString();
-    const outputPath = path.join(path.dirname(process.execPath), '.env');
-    console.log('Copying .env', innerPath, content.length, outputPath);
-    fs.writeFile(outputPath, content, callback);
-    // console.log('inner content', fs.readFileSync(innerPath).toString());
-    // fs.copyFileSync(innerPath, path.join(process.cwd(), '.env'));
-  } else {
-    console.log('Skipping .env');
-    callback(null);
+function createEnv(baseEnvPath, userConfig, callback) {
+  console.log();
+  console.log('Creating Configuration File');
+  // Delete the existing configuration file if it exists.
+  if (fs.existsSync('.env')) {
+    fs.unlinkSync('.env');
+    console.log(' Deleted existing file');
   }
+
+  console.log(' Encrypting Password');
+  let encryptedPassword = password.encrypt(userConfig.dbPass, secret);
+  encryptedPassword = `enc:${encryptedPassword}`;
+
+  const innerPath = path.join(__dirname, baseEnvPath);
+  let content = fs.readFileSync(innerPath).toString();
+
+  content = content.replace(/(source_dialect(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.dbDialect}`);
+  content = content.replace(/(source_host(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.dbHost}`);
+  content = content.replace(/(source_port(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.dbPort}`);
+  content = content.replace(/(source_database(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.dbDatabase}`);
+  content = content.replace(/(source_user(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.dbUser}`);
+  content = content.replace(/(source_password(?:\s*)=(?:\s*))(.*)/g, `$1${encryptedPassword}`);
+  content = content.replace(/(target_host(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.endpointHost}`);
+  content = content.replace(/(target_port(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.endpointPort}`);
+
+  const outputPath = path.join(process.cwd(), '.env');
+  fs.writeFile(outputPath, content, callback);
+  console.log(' File .env created');
+}
+
+function promptUserConfig(callback) {
+  console.log('#####################################################################');
+  console.log('# GATHERING CONNECTION INFO');
+  console.log('#####################################################################');
+  console.log('');
+  console.log('Specify the connection information that this application should');
+  console.log('use to connect to the EMR database.');
+  // Mapping
+  const mappings = ['mois', 'oscar'];
+  const mappingIndex = rl.keyInSelect(mappings, 'EMR: ');
+
+  if (mappingIndex === -1) {
+    return callback('Initialization Cancelled');
+  }
+  const mapping = mappings[mappingIndex];
+
+  let dbDialect;
+  let dbHost;
+  let dbPort;
+
+  if (mapping === 'mois') {
+    dbDialect = 'postgres';
+    dbHost = 'localhost';
+    dbPort = '5432';
+  } else if (mapping === 'oscar') {
+    dbDialect = 'mysql';
+    dbHost = 'localhost';
+    dbPort = '3306';
+  }
+
+  const dbDatabase = rl.question('EMR Database Name: ');
+  const dbUser = rl.question('EMR Database Username: ');
+  const dbPass = rl.question('EMR Database Password: ', { hideEchoBack: true });
+  const endpointHost = rl.question('Endpoint IP: ');
+  const endpointPort = rl.question('Endpoint Port (22): ', { defaultInput: '22' });
+
+  return callback(null, {
+    dbDialect,
+    dbHost,
+    dbPort,
+    dbDatabase,
+    dbUser,
+    dbPass,
+    endpointHost,
+    endpointPort,
+  });
 }
 
 function run(callback) {
-  // console.log('readdir', fs.readdirSync('C:\\snapshot\\emr-exporter\\'));
-  // console.log('readdir', fs.readdirSync('C:\\snapshot\\emr-exporter\\examples'));
-  async.series([
-    async.apply(makeDir, './ssh'),
-    async.apply(makeDir, './logs'),
-    async.apply(makeDir, './working'),
-    async.apply(createEnv, 'a'),
-    async.apply(generateKey, 4096, './ssh/id_rsa.pub', './ssh/id_rsa'),
-  ], callback);
 
-  //
-  // if (!fs.existsSync('.env')) {
-  //   console.log('Copying .env');
-  //   const innerPath = path.join(__dirname, '../examples/full.env');
-  //   // console.log('innerPath', innerPath);
-  //   const content = fs.readFileSync(innerPath).toString();
-  //   fs.writeFileSync('.env', content);
-  //   // console.log('inner content', fs.readFileSync(innerPath).toString());
-  //   // fs.copyFileSync(innerPath, path.join(process.cwd(), '.env'));
-  // } else {
-  //   console.log('Skipping .env');
-  // }
-  //
-  // if (!fs.existsSync('./ssh/id_rsa')) {
-  //   console.log('Generating Keys');
-  //   generateKey();
-  // } else {
-  //   console.log('Skipping Key Generation');
-  // }
-  //
-  // callback(null);
+  promptUserConfig((err, userConfig) => {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log();
+    console.log('#####################################################################');
+    console.log('# CONFIGURING');
+    console.log('#####################################################################');
+    
+    async.autoInject({
+      sshDir: (cb) => makeDir('./ssh', cb),
+      logDir: (sshDir, cb) => makeDir('./logs', cb),
+      workingDir: (logDir, cb) => makeDir('./working', cb),
+      pubKey: (workingDir, cb) => generateKey(4096, './ssh/id_rsa.pub', './ssh/id_rsa', cb),
+      env: (pubKey, cb) => createEnv('../examples/full.env', userConfig, cb),
+    }, (err, res) => {
+    // async.series([
+    //   async.apply(makeDir, './ssh'),
+    //   async.apply(makeDir, './logs'),
+    //   async.apply(makeDir, './working'),
+    //   async.apply(generateKey, 4096, './ssh/id_rsa.pub', './ssh/id_rsa'),
+    //   async.apply(createEnv, '../examples/full.env', userConfig),
+    // ], (err, res) => {
+      if (err) {
+        console.error();
+        console.error('#####################################################################');
+        console.error('# ERROR');
+        console.error('#####################################################################');     
+        console.error('Configuration could not be completed:');
+        console.error(err);
+        return callback(err);
+      }
+
+      console.log();
+      console.log('#####################################################################');
+      console.log('# FINALIZING');
+      console.log('#####################################################################');        
+      console.log();
+      console.log('The following information is required by HDC to create a secure');
+      console.log('connection between this application and the endpoint. This application');
+      console.log('will not run successfully until HDC receives the below information.');
+      console.log();
+      console.log('Email the below to systems@hdcbc.ca');
+      console.log();
+      console.log('Public Key:');
+      console.log(res.pubKey);
+      console.log();
+      console.log('EMR Server IP:');
+      console.log(ip.address());
+    });
+  });
 }
 
 module.exports = {

@@ -1,6 +1,5 @@
 const exporter = require('./exporter');
 const initializer = require('./initializer');
-const password = require('./password');
 const config = require('./config');
 const configureLogger = require('./configureLogger');
 
@@ -52,23 +51,9 @@ function runInitializer() {
   });
 }
 
-function runSetPassword() {
-  console.log('Running Set Password');
-  password.run((err, res) => {
-    if (err) {
-      console.log('Set Password Successful');
-      process.exit(3);
-    }
-    console.log('ERROR: Set Password Error', err);
-    process.exit(0);
-  });
-}
-
 function run() {
   if (config.isInit()) {
     runInitializer();
-  } else if (config.isSetPassword()) {
-    runSetPassword();
   } else {
     runExporter();
   }

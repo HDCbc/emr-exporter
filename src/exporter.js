@@ -35,7 +35,6 @@ function changePermissions(filepath, mode, callback) {
   });
 }
 
-
 /**
  * Compress all of the files in a directory into a single file.
  *
@@ -543,6 +542,7 @@ function run(options, callback) {
     connectionInterval,
     dateFormat,
     mapping,
+    prepareFile,
     parallelExtracts,
     source,
     target,
@@ -575,8 +575,12 @@ function run(options, callback) {
     wait: ['database', (res, cb) => {
       waitForConnection(res.database, connectionAttempts, connectionInterval, cb);
     }],
+    // Run the pre-script to prepare the database
+    prepared: ['wait', (res, cb) => {
+      prepareDatabase(prepareFile, cb)
+    }],
     // Create the temporary export directory.
-    exportDir: ['wait', (res, cb) => {
+    exportDir: ['prepared', (res, cb) => {
       createDirectory(tempExportDir, cb);
     }],
     // Chmod the temporary export directory.

@@ -1,6 +1,11 @@
 const dotenv = require('dotenv');
 const Joi = require('joi');
 const nconf = require('nconf');
+const path = require('path');
+const fs = require('fs');
+
+const password = require('./password');
+const secret = require('./secret');
 
 /**
  * Retrieve the configuration values. Priority of the configuration values is:
@@ -60,6 +65,7 @@ function get() {
     connectionAttempts: nconf.get('connectionAttempts'),
     connectionInterval: nconf.get('connectionInterval'),
     mapping: nconf.get('mapping'),
+    prepareFile: nconf.get('prepareFile'),
     source: nconf.get('source'),
     target: nconf.get('target'),
     compressFormat: nconf.get('compressFormat'),
@@ -90,6 +96,7 @@ function validate(config, callback) {
     connectionAttempts: Joi.number().integer().min(1),
     connectionInterval: Joi.number().integer().min(1),
     mapping: Joi.string(),
+    prepareFile: Joi.string(),
     source: Joi.object().keys({
       dialect: Joi.string(),
       host: Joi.string(),
@@ -144,6 +151,33 @@ function load(callback) {
       // the cleartext password/passphrases.
       return callback(err.message);
     }
+
+    let cleartextPassword;
+
+    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so 
+    // we need to encrypt it.
+    if (!res.source.password.startsWith('ENC:')) {
+      const encrypted = password.encrypt(res.source.password, secret);
+
+      // Read the .env file content
+      const envPath = path.join(process.cwd(), '.env');
+      const env = fs.readFileSync(envPath, { encoding: 'utf8' });
+
+      // Replace the database password with the encrypted value.
+      // const newEnv = env.replace(res.source.password, `ENC:${encrypted}`);
+      const newEnv = env.replace(/(source_password(?:\s*)=(?:\s*))(.*)/g, `$1ENC:${encrypted}`);
+
+      // Write the new .env file content
+      fs.writeFileSync(envPath, newEnv, { encoding: 'utf8' });
+
+      cleartextPassword = res.source.password;
+    } else {
+      const toDecrypt = res.source.password.split(':')[1];
+      cleartextPassword = password.decrypt(toDecrypt, secret);
+    }
+
+    res.source.password = cleartextPassword;
+
     return callback(null, res);
   });
 }
@@ -154,14 +188,7 @@ function isInit() {
   return nconf.get('init');
 }
 
-function isSetPassword() {
-  nconf.argv();
-
-  return nconf.get('password');
-}
-
 module.exports = {
   load,
   isInit,
-  isSetPassword,
 };
