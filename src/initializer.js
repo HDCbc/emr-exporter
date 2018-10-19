@@ -154,13 +154,13 @@ function run(callback) {
     console.log('#####################################################################');
     console.log('# CONFIGURING');
     console.log('#####################################################################');
-    
-    async.autoInject({
-      sshDir: (cb) => makeDir('./ssh', cb),
-      logDir: (sshDir, cb) => makeDir('./logs', cb),
-      workingDir: (logDir, cb) => makeDir('./working', cb),
-      pubKey: (workingDir, cb) => generateKey(4096, './ssh/id_rsa.pub', './ssh/id_rsa', cb),
-      env: (pubKey, cb) => createEnv('../examples/full.env', userConfig, cb),
+
+    async.auto({
+      sshDir: cb => makeDir('./ssh', cb),
+      logDir: ['sshDir', (params, cb) => makeDir('./logs', cb)],
+      workingDir: ['logDir', (params, cb) => makeDir('./working', cb)],
+      pubKey: ['workingDir', (params, cb) => generateKey(4096, './ssh/id_rsa.pub', './ssh/id_rsa', cb)],
+      env: ['pubKey', (params, cb) => createEnv('../examples/full.env', userConfig, cb)],
     }, (err, res) => {
     // async.series([
     //   async.apply(makeDir, './ssh'),
