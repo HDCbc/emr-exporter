@@ -144,9 +144,9 @@ function promptUserConfig(callback) {
 }
 
 function run(callback) {
-
-  promptUserConfig((err, userConfig) => {
-    if (err) {
+  promptUserConfig((configErr, userConfig) => {
+    if (configErr) {
+      return callback(configErr);
       return callback(err);
     }
 
