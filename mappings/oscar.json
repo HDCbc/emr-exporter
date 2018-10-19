@@ -1,0 +1,438 @@
+[
+    {
+        "target": "Clinic",
+        "query": "SELECT clinic_name AS 'name', clinic_name AS 'hdc_reference', clinic_name AS 'emr_id', NULL AS 'emr_reference' FROM clinic"
+    },
+    {
+        "target": "Practitioner",
+        "query": "SELECT (SELECT clinic_name FROM clinic) AS 'emr_clinic_id', CONCAT(first_name, ' ', last_name) AS 'name', coalesce(ohip_no, '') AS 'identifier', 'MSP' AS 'identifier_type', provider_no AS 'emr_practitioner_id', NULL AS 'emr_reference' FROM provider WHERE provider_no > 0"
+    },
+    {
+        "target": "Patient",
+        "query": "SELECT (SELECT clinic_name FROM clinic) AS 'emr_clinic_id', demographic_no AS 'emr_patient_id', NULL AS 'emr_reference' FROM demographic"
+    },
+    {
+        "target": "PatientState",
+        "query": "SELECT t.emr_patient_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_patient_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT demographic_no AS emr_patient_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+    },
+    {
+        "target": "PatientPractitioner",
+        "query": "SELECT demographic_no AS 'emr_patient_id', IFNULL( provider_no, 0 ) AS 'emr_practitioner_id',  demographic_no AS 'emr_practitioner_provider_id', NULL AS 'emr_reference' FROM demographic"
+    },
+    {
+        "target": "Entry.001",
+        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
+    },
+    {
+        "target": "EntryState.001",
+        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.001.001",
+        "query": "SELECT 'demographic' AS source_table, 001.001 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, 'home' AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.001 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, 'home' AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.001.002",
+        "query": "SELECT 'demographic' AS source_table, 001.002 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, address AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.002 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, address AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.001.004",
+        "query": "SELECT 'demographic' AS source_table, 001.004 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, city AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.004 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, city AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive WHERE lastUpdateDate IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.001.005",
+        "query": "SELECT 'demographic' AS source_table, 001.005 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, province AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.005 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, province AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.001.006",
+        "query": "SELECT 'demographic' AS source_table, 001.006 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, postal AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.006 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, postal AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.001.007",
+        "query": "SELECT 'demographic' AS source_table, 001.007 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, IF(country_of_origin = '-1', 'CA', country_of_origin) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001.007 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, IF(country_of_origin = '-1', 'CA', country_of_origin) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "Entry.002",
+        "query": "SELECT 'allergies' AS source_table, 002 as entry_id, a.allergyid AS emr_id, a.demographic_no AS emr_patient_id FROM allergies a"
+    },
+    {
+        "target": "EntryState.002",
+        "query": "SELECT 'allergies' AS source_table, a.allergyid AS emr_id, IF(a.archived = 1, 'inactive', 'active') AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.001",
+        "query": "SELECT 'allergies' AS source_table , 2.001 AS attribute_id , a.demographic_no AS emr_entry_id , 'DIN' AS code_system , a.regional_identifier AS code_value , a.DESCRIPTION AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.003",
+        "query": "SELECT 'allergies' AS source_table , 2.003 AS attribute_id , a.demographic_no AS emr_entry_id , 'HL7 ActCode' AS code_system , CASE WHEN a.TYPECODE = 12 OR a.TYPECODE = 14 THEN 'ALG' WHEN a.TYPECODE IS NULL OR a.TYPECODE = 0 THEN '' ELSE 'DALG' END AS code_value , CASE WHEN a.TYPECODE = 12 OR a.TYPECODE = 14 THEN 'allergy' WHEN a.TYPECODE IS NULL OR a.TYPECODE = 0 THEN 'unknown' ELSE 'drug allergy' END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.005",
+        "query": "SELECT 'allergies' AS source_table , 2.005 AS attribute_id , a.demographic_no AS emr_entry_id , 'HL7 ObservationValue' AS code_system , CASE WHEN a.severity_of_reaction = 1 THEN 'A2' WHEN a.severity_of_reaction = 2 THEN 'A3' WHEN a.severity_of_reaction = 3 THEN 'A4' ELSE '' END AS code_value , CASE WHEN a.severity_of_reaction = 1 THEN 'mild' WHEN a.severity_of_reaction = 2 THEN 'moderate' WHEN a.severity_of_reaction = 3 THEN 'severe' ELSE 'unknown' END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.006",
+        "query": "SELECT 'allergies' AS source_table , 2.006 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , a.reaction AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.007",
+        "query": "SELECT 'allergies' AS source_table , 2.007 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.start_date )) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "EntryAttribute.002.008",
+        "query": "SELECT 'allergies' AS source_table , 2.008 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , IF( a.archived = 1, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ'), NULL ) AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
+    },
+    {
+        "target": "Entry.003",
+        "query": "SELECT 'billingmaster' AS source_table, 003 as entry_id, billingmaster_no AS emr_id, demographic_no AS emr_patient_id FROM billingmaster WHERE billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryState.003",
+        "query": "SELECT 'billingmaster' AS source_table, bm.billingmaster_no AS emr_id, billingtype AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, b.billing_no AS emr_reference FROM billingmaster bm LEFT JOIN billing b ON (bm.billing_no = b.billing_no) WHERE bm.billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryAttribute.003.001",
+        "query": "SELECT 'billingmaster' AS source_table , 3.001 AS attribute_id , demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , STR_TO_DATE(service_date, '%Y%m%d' ) )) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , createdate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster WHERE billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryAttribute.003.002",
+        "query": "SELECT 'billingmaster' AS source_table , 3.002 AS attribute_id , demographic_no AS emr_entry_id , 'OSCAR' AS code_system , bm.billingstatus AS code_value , bt.displayNameExt AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , createdate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm JOIN billingstatus_types bt ON (bt.billingstatus = bm.billingstatus) WHERE bm.billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryAttribute.003.003",
+        "query": "SELECT 'billingmaster' AS source_table , 3.003 AS attribute_id , bm1.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , IFNULL( bh1.creation_date, bm1.createdate ) ) ) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm1.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , IFNULL( bh1.creation_date, bm1.createdate ) ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , lastHistory.historyID AS emr_reference FROM billing_history bh1 RIGHT JOIN ( SELECT MAX( bh.id ) 'historyID' FROM billingmaster bm LEFT JOIN billing_history bh ON (bm.billingmaster_no = bh.billingmaster_no) LEFT JOIN billingstatus_types bt ON (bt.billingstatus = bh.billingstatus) GROUP BY bm.billingmaster_no ) lastHistory ON( lastHistory.historyID = bh1.id ) RIGHT JOIN billingmaster bm1 ON(bm1.billingmaster_no = bh1.billingmaster_no) WHERE bm1.billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryAttribute.003.004",
+        "query": "SELECT 'billingmaster' AS source_table , 3.004 AS attribute_id , bm.demographic_no AS emr_entry_id , 'MSP' AS code_system , bm.billing_code AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "EntryAttribute.003.005",
+        "query": "SELECT 'billingmaster' AS source_table , 3.005 AS attribute_id , bm.demographic_no AS emr_entry_id , 'MSP/ICD9' AS code_system , bm.dx_code1 AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , bm.billingmaster_no AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , bm.createdate ) ) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D'"
+    },
+    {
+        "target": "Entry.005",
+        "query": "SELECT 'demographic' AS `source_table`, 005 as entry_id, demographic_no AS `emr_id`, demographic_no AS `emr_patient_id` FROM demographic"
+    },
+    {
+        "target": "EntryState.005",
+        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.005.001",
+        "query": "SELECT 'demographic' AS source_table, 5.001 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, NULL AS text_value, CAST( CONCAT(year_of_birth, '-', month_of_birth, '-', date_of_birth) AS Date ) AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 5.001 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, NULL AS text_value, CAST(CONCAT(year_of_birth, '-', month_of_birth, '-', date_of_birth) AS Date) AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.005.003",
+        "query": "SELECT 'demographic' AS source_table, 5.003 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, sex AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 5.003 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, sex AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.005.005",
+        "query": "SELECT 'demographic' AS source_table, 5.005 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, first_name AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 5.005 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, first_name AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.005.006",
+        "query": "SELECT 'demographic' AS source_table, 5.006 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, last_name AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT 'demographic' AS source_table, 5.006 AS attribute_id, demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, last_name AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, demographic_no AS emr_id, lastUpdateDate AS effective_date, id AS emr_reference FROM demographicArchive"
+    },
+    {
+        "target": "EntryAttribute.005.010",
+        "query": "SELECT 'demographicExt' AS source_table, 5.010 AS attribute_id, de.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, de.`value` AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, de.id AS emr_id, de.date_time AS effective_date, NULL AS emr_reference FROM demographicExt de WHERE de.key_val LIKE 'aboriginal' UNION ALL SELECT 'demographicExtArchive' AS source_table, 5.010 AS attribute_id, dea.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, dea.`value` AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dea.id AS emr_id, dea.date_time AS effective_date, dea.archiveId AS emr_reference FROM demographicExtArchive dea WHERE dea.key_val LIKE \"aboriginal\""
+    },
+    {
+        "target": "EntryAttribute.005.011",
+        "query": "SELECT 'demographicExt' AS source_table, 5.011 AS attribute_id, de.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, de.`value` AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, de.id AS emr_id, de.date_time AS effective_date, NULL AS emr_reference FROM demographicExt de WHERE de.key_val LIKE 'ethnicity' UNION ALL SELECT 'demographicExtArchive' AS source_table, 5.011 AS attribute_id, dea.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, dea.`value` AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dea.id AS emr_id, dea.date_time AS effective_date, dea.archiveId AS emr_reference FROM demographicExtArchive dea WHERE dea.key_val LIKE \"ethnicity\""
+    },
+    {
+        "target": "Entry.006",
+        "query": "SELECT 'demographic' AS source_table, 006 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION ALL SELECT 'demographic' AS source_table, 006 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
+    },
+    {
+        "target": "EntryState.006",
+        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.006.001",
+        "query": "SELECT 'demographic' AS source_table, 6.001 AS attribute_id, contact.demographic_no AS emr_entry_id, 'OSCAR' AS code_system, contact.type AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, contact.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, contact.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, contact.emr_reference AS emr_reference FROM ( SELECT home.demographic_no AS 'emr_id', home.demographic_no, home.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( home.phone, IF( homeExt.`value` IS NOT NULL AND homeExt.`value` <> '', CONCAT( 'ext: ', homeExt.`value` ), '' ) ) AS 'val' FROM demographic home LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'hPhoneExt' ) homeExt ON( home.demographic_no = homeExt.demographic_no )  UNION ALL SELECT `work`.demographic_no AS 'emr_id', `work`.demographic_no, `work`.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( `work`.phone2, IF( workExt.`value` IS NOT NULL AND workExt.`value` <> '', CONCAT( 'ext: ', workExt.`value` ), '' ) ) AS 'val' FROM demographic `work` LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'wPhoneExt' ) workExt ON( `work`.demographic_no = workExt.demographic_no ) UNION ALL SELECT email.demographic_no AS 'emr_id', email.demographic_no, email.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', email.email AS 'val' FROM demographic email UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(mobile.date_time, d.lastUpdateDate) AS 'effective_date', mobile.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', mobile.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'demo_cell' ) mobile ON( d.demographic_no = mobile.demographic_no ) UNION ALL SELECT archiveHome.id AS 'emr_id', archiveHome.demographic_no, archiveHome.lastUpdateDate AS 'effective_date', archiveHome.id AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( archiveHome.phone, IF( archiveHomeExt.`value` IS NOT NULL AND archiveHomeExt.`value` <> '', CONCAT( 'ext: ', archiveHomeExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveHome LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'hPhoneExt' ) archiveHomeExt ON( archiveHome.id = archiveHomeExt.archiveId ) UNION ALL SELECT archiveWork.id AS 'emr_id', archiveWork.demographic_no, archiveWork.lastUpdateDate AS 'effective_date', archiveWork.id AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( archiveWork.phone2, IF( archiveWorkExt.`value` IS NOT NULL AND archiveWorkExt.`value` <> '', CONCAT( 'ext: ', archiveWorkExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveWork LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'wPhoneExt' ) archiveWorkExt ON( archiveWork.id = archiveWorkExt.archiveId ) UNION ALL SELECT archiveEmail.id AS 'emr_id', archiveEmail.demographic_no, archiveEmail.lastUpdateDate AS 'effective_date', archiveEmail.id AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', archiveEmail.email AS 'val' FROM demographicArchive archiveEmail UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveMobile.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', archiveMobile.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'demo_cell' ) archiveMobile ON( archiveD.id = archiveMobile.archiveId ) ) contact"
+    },
+    {
+        "target": "EntryAttribute.006.002",
+        "query": "SELECT 'demographic' AS source_table, 6.002 AS attribute_id, contact.demographic_no AS emr_entry_id, 'OSCAR' AS code_system, contact.location AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, contact.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, contact.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, contact.emr_reference AS emr_reference FROM ( SELECT home.demographic_no AS 'emr_id', home.demographic_no, home.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( home.phone, IF( homeExt.`value` IS NOT NULL AND homeExt.`value` <> '', CONCAT( 'ext: ', homeExt.`value` ), '' ) ) AS 'val' FROM demographic home LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'hPhoneExt' ) homeExt ON( home.demographic_no = homeExt.demographic_no ) UNION ALL SELECT `work`.demographic_no AS 'emr_id', `work`.demographic_no, `work`.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( `work`.phone2, IF( workExt.`value` IS NOT NULL AND workExt.`value` <> '', CONCAT( 'ext: ', workExt.`value` ), '' ) ) AS 'val' FROM demographic `work` LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'wPhoneExt' ) workExt ON( `work`.demographic_no = workExt.demographic_no ) UNION ALL SELECT email.demographic_no AS 'emr_id', email.demographic_no, email.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', email.email AS 'val' FROM demographic email UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(mobile.date_time, d.lastUpdateDate) AS 'effective_date', mobile.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', mobile.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'demo_cell' ) mobile ON( d.demographic_no = mobile.demographic_no ) UNION ALL SELECT archiveHome.id AS 'emr_id', archiveHome.demographic_no, archiveHome.lastUpdateDate AS 'effective_date', archiveHome.id AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( archiveHome.phone, IF( archiveHomeExt.`value` IS NOT NULL AND archiveHomeExt.`value` <> '', CONCAT( 'ext: ', archiveHomeExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveHome LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'hPhoneExt' ) archiveHomeExt ON( archiveHome.id = archiveHomeExt.archiveId ) UNION ALL SELECT archiveWork.id AS 'emr_id', archiveWork.demographic_no, archiveWork.lastUpdateDate AS 'effective_date', archiveWork.id AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( archiveWork.phone2, IF( archiveWorkExt.`value` IS NOT NULL AND archiveWorkExt.`value` <> '', CONCAT( 'ext: ', archiveWorkExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveWork LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'wPhoneExt' ) archiveWorkExt ON( archiveWork.id = archiveWorkExt.archiveId ) UNION ALL SELECT archiveEmail.id AS 'emr_id', archiveEmail.demographic_no, archiveEmail.lastUpdateDate AS 'effective_date', archiveEmail.id AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', archiveEmail.email AS 'val' FROM demographicArchive archiveEmail UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveMobile.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', archiveMobile.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'demo_cell' ) archiveMobile ON( archiveD.id = archiveMobile.archiveId ) ) contact"
+    },
+    {
+        "target": "EntryAttribute.006.003",
+        "query": "SELECT 'demographic' AS source_table, 6.003 AS attribute_id, contact.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, contact.val AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, contact.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, contact.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, contact.emr_reference AS emr_reference FROM ( SELECT home.demographic_no AS 'emr_id', home.demographic_no, home.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( home.phone, IF( homeExt.`value` IS NOT NULL AND homeExt.`value` <> '', CONCAT( 'ext: ', homeExt.`value` ), '' ) ) AS 'val' FROM demographic home LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'hPhoneExt' ) homeExt ON( home.demographic_no = homeExt.demographic_no ) UNION ALL SELECT `work`.demographic_no AS 'emr_id', `work`.demographic_no, `work`.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( `work`.phone2, IF( workExt.`value` IS NOT NULL AND workExt.`value` <> '', CONCAT( 'ext: ', workExt.`value` ), '' ) ) AS 'val' FROM demographic `work` LEFT JOIN ( SELECT demographic_no, `value` FROM demographicExt WHERE key_val LIKE 'wPhoneExt' ) workExt ON( `work`.demographic_no = workExt.demographic_no ) UNION ALL SELECT email.demographic_no AS 'emr_id', email.demographic_no, email.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', email.email AS 'val' FROM demographic email UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(mobile.date_time, d.lastUpdateDate) AS 'effective_date', mobile.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', mobile.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'demo_cell' ) mobile ON( d.demographic_no = mobile.demographic_no ) UNION ALL SELECT archiveHome.id AS 'emr_id', archiveHome.demographic_no, archiveHome.lastUpdateDate AS 'effective_date', archiveHome.id AS 'emr_reference', 'phone' AS 'type', 'home' AS 'location', CONCAT( archiveHome.phone, IF( archiveHomeExt.`value` IS NOT NULL AND archiveHomeExt.`value` <> '', CONCAT( 'ext: ', archiveHomeExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveHome LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'hPhoneExt' ) archiveHomeExt ON( archiveHome.id = archiveHomeExt.archiveId ) UNION ALL SELECT archiveWork.id AS 'emr_id', archiveWork.demographic_no, archiveWork.lastUpdateDate AS 'effective_date', archiveWork.id AS 'emr_reference', 'phone' AS 'type', 'work' AS 'location', CONCAT( archiveWork.phone2, IF( archiveWorkExt.`value` IS NOT NULL AND archiveWorkExt.`value` <> '', CONCAT( 'ext: ', archiveWorkExt.`value` ), '' ) ) AS 'val' FROM demographicArchive archiveWork LEFT JOIN ( SELECT demographic_no, `value`, archiveId FROM demographicExtArchive WHERE key_val LIKE 'wPhoneExt' ) archiveWorkExt ON( archiveWork.id = archiveWorkExt.archiveId ) UNION ALL SELECT archiveEmail.id AS 'emr_id', archiveEmail.demographic_no, archiveEmail.lastUpdateDate AS 'effective_date', archiveEmail.id AS 'emr_reference', 'email' AS 'type', 'home' AS 'location', archiveEmail.email AS 'val' FROM demographicArchive archiveEmail UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveMobile.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'mobile' AS 'type', 'home' AS 'location', archiveMobile.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'demo_cell' ) archiveMobile ON( archiveD.id = archiveMobile.archiveId ) ) contact"
+    },
+    {
+        "target": "Entry.007",
+        "query": "SELECT 'casemgmt_note' AS source_table, 007 as entry_id, cn.note_id AS emr_id, cn.demographic_no AS emr_patient_id FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
+    },
+    {
+        "target": "EntryState.007",
+        "query": "SELECT 'casemgmt_note' AS source_table, cn.note_id AS emr_id, cn.signed AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
+    },
+    {
+        "target": "EntryAttribute.007.001",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.001 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, NULL AS text_value, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.observation_date )), '%Y-%m-%dT%T.%fZ') AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
+    },
+    {
+        "target": "EntryAttribute.007.002",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.002 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, CONCAT( lli.label, ',', a.reason ) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.observation_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, a.appointment_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id) INNER JOIN appointment a ON (cn.appointmentNo > 0 AND a.appointment_no = cn.appointmentNo) INNER JOIN LookupListItem lli ON(a.reasonCode > 0 AND a.reasonCode = lli.id)"
+    },
+    {
+        "target": "EntryAttribute.007.003",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.003 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, IFNULL(aty.`name`, a.type) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, a.appointment_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id) INNER JOIN appointment a ON (cn.appointmentNo > 0 AND a.appointment_no = cn.appointmentNo) LEFT JOIN appointmentType aty ON ( a.type = aty.id )"
+    },
+    {
+        "target": "EntryAttribute.007.004",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.004 AS attribute_id, cn.note_id AS emr_entry_id, NULL AS code_system, NULL AS code_value, cn.encounter_type AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.observation_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id)"
+    },
+    {
+        "target": "EntryAttribute.007.006",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.006 AS attribute_id, cn.note_id AS emr_entry_id, 'MSP minimal ICD9' AS code_system, bill.dx_code1 AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, bill.billingmaster_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id) LEFT JOIN ( SELECT bm2.appointment_no, bm2.dx_code1, bm2.billingmaster_no FROM billingmaster bm2 INNER JOIN ( SELECT MIN(bm.billingmaster_no) AS billingmaster_no FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D' AND bm.appointment_no > 0 GROUP BY bm.appointment_no ) appt ON (appt.billingmaster_no = bm2.billingmaster_no) ) bill ON (cn.appointmentNo > 0 AND bill.appointment_no = cn.appointmentNo) WHERE bill.dx_code1 IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.007.007",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.007 AS attribute_id, cn.note_id AS emr_entry_id, 'MSP minimal ICD9' AS code_system, bill.dx_code1 AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, bill.billingmaster_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id) LEFT JOIN ( SELECT bm2.appointment_no, bm2.dx_code1, bm2.billingmaster_no FROM billingmaster bm2 INNER JOIN ( SELECT SUBSTRING_INDEX( SUBSTRING_INDEX(numberlist,',',2),',',-1 ) AS billingmaster_no FROM ( SELECT GROUP_CONCAT(bm.billingmaster_no) AS numberlist FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D' AND bm.appointment_no > 0 GROUP BY bm.appointment_no HAVING COUNT(bm.appointment_no) > 1 ) second_number ) appt ON (appt.billingmaster_no = bm2.billingmaster_no) ) bill ON (cn.appointmentNo > 0 AND bill.appointment_no = cn.appointmentNo) WHERE bill.dx_code1 IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.007.008",
+        "query": "SELECT 'casemgmt_note' AS source_table, 7.008 AS attribute_id, cn.note_id AS emr_entry_id, 'MSP' AS code_system, bill.billing_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, cn.update_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, bill.billingmaster_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote = 0 GROUP BY uuid ) note ON (note.note_id = cn.note_id) LEFT JOIN ( SELECT bm2.appointment_no, bm2.billing_code, bm2.billingmaster_no FROM billingmaster bm2 INNER JOIN ( SELECT MIN(bm.billingmaster_no) AS billingmaster_no FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D' AND bm.appointment_no > 0 GROUP BY bm.appointment_no ) appt ON (appt.billingmaster_no = bm2.billingmaster_no) ) bill ON (cn.appointmentNo > 0 AND bill.appointment_no = cn.appointmentNo) WHERE bill.billing_code IS NOT NULL"
+    },
+    {
+        "target": "Entry.009",
+        "query": "SELECT 'measurements' AS source_table, 009 as entry_id, id AS emr_id , demographicNo AS emr_patient_id FROM measurements"
+    },
+    {
+        "target": "EntryState.009",
+        "query": "SELECT 'measurements' AS source_table , id AS emr_id , 'A' AS state , DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, dateEntered)), '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM measurements"
+    },
+    {
+        "target": "EntryAttribute.009.001",
+        "query": "SELECT 'measurements' AS source_table, 9.001 AS attribute_id, m.demographicNo AS emr_entry_id, CASE WHEN identifier.val IS NOT NULL AND identifier.val <> '' THEN 'LOINC' ELSE 'OSCAR' END AS code_system , CASE WHEN identifier.val IS NOT NULL AND identifier.val <> '' THEN identifier.val ELSE m.type END AS code_value, IFNULL( `name`.keyval, mt.typeDescription ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT (TIMESTAMPADD (MICROSECOND , - 1 , TIMESTAMPADD (DAY , 1 , dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , identifier.id AS emr_reference FROM measurements AS m LEFT JOIN measurementsExt identifier ON ( m.id = identifier.measurement_id AND identifier.keyval = 'identifier' ) LEFT JOIN measurementsExt `name` ON ( m.id = `name`.measurement_id AND `name`.keyval = 'name' ) LEFT JOIN ( SELECT max(typeDescription) as typeDescription, type FROM measurementType mt GROUP BY type HAVING COUNT(type) > - 1 ) mt ON ( mt.type = m.type AND m.type <> '' ) WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0 )"
+    },
+    {
+        "target": "EntryAttribute.009.002",
+        "query": "SELECT 'measurements' AS source_table , 9.002 AS attribute_id , m.demographicNo AS emr_entry_id , NULL AS code_system , NULL AS code_value, NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateObserved)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM measurements AS m WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "EntryAttribute.009.003",
+        "query": "SELECT 'measurements' AS source_table , 9.003 AS attribute_id , m.demographicNo AS emr_entry_id , NULL AS code_system , NULL AS code_value, m.dataField AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM measurements AS m WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "EntryAttribute.009.004",
+        "query": "SELECT 'measurements' AS source_table , 9.004 AS attribute_id , m.demographicNo AS emr_entry_id , NULL AS code_system , NULL AS code_value, CASE WHEN `range`.val IS NOT NULL THEN `range`.val WHEN `minimum`.val IS NOT NULL OR `maximum`.val IS NOT NULL THEN TRIM( CONCAT( IF( `minimum`.val IS NOT NULL, CONCAT('Min ',`minimum`.val), '' ), IF(`maximum`.val IS NOT NULL, CONCAT(' Max ', `maximum`.val), '' ) ) ) ELSE IFNULL( m.measuringInstruction, mt.measuringInstruction ) END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , COALESCE( `range`.id, `minimum`.id, `maximum`.id ) AS emr_reference FROM measurements AS m LEFT JOIN measurementsExt `range` ON ( m.id = `range`.measurement_id AND `range`.keyval = 'range' ) LEFT JOIN measurementsExt `minimum` ON ( m.id = `minimum`.measurement_id AND `minimum`.keyval = 'minimum' ) LEFT JOIN measurementsExt `maximum` ON ( m.id = `maximum`.measurement_id AND `maximum`.keyval = 'maximum' ) LEFT JOIN ( SELECT max(measuringInstruction) as measuringInstruction, type FROM measurementType mt GROUP BY type HAVING COUNT(type) > -1 ) mt ON( mt.type = m.type AND m.type <> '' ) WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "EntryAttribute.009.005",
+        "query": "SELECT 'measurements' AS source_table , 9.005 AS attribute_id , m.demographicNo AS emr_entry_id , NULL AS code_system , NULL AS code_value, COALESCE(`unit`.val, m.measuringInstruction, mt.measuringInstruction ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `unit`.id AS emr_reference FROM measurements AS m LEFT JOIN measurementsExt `unit` ON ( m.id = `unit`.measurement_id AND `unit`.keyval = 'unit' ) LEFT JOIN ( SELECT max(measuringInstruction) as measuringInstruction, type FROM measurementType mt GROUP BY type HAVING COUNT(type) > -1 ) mt ON( mt.type = m.type AND m.type <> '' ) WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "EntryAttribute.009.006",
+        "query": "SELECT 'measurements' AS source_table , 9.006 AS attribute_id , m.demographicNo AS emr_entry_id , 'HL7 v2x' AS code_system , `olis_status`.val AS code_value, NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `olis_status`.id AS emr_reference FROM measurements AS m LEFT JOIN measurementsExt `olis_status` ON ( m.id = `olis_status`.measurement_id AND `olis_status`.keyval = 'olis_status' ) WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "EntryAttribute.009.007",
+        "query": "SELECT 'measurements' AS source_table , 9.007 AS attribute_id , m.demographicNo AS emr_entry_id , NULL AS code_system , NULL AS code_value, IFNULL(`labname`.val, CONCAT( p.first_name, ' ', p.last_name ) ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , m.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , m.dateEntered)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `labname`.id AS emr_reference FROM measurements AS m LEFT JOIN measurementsExt `labname` ON ( m.id = `labname`.measurement_id AND `labname`.keyval = 'labname' ) LEFT JOIN provider p ON (p.provider_no = m.providerNo AND m.providerNo IS NOT NULL AND m.providerNo > 0) WHERE ( m.demographicNo IS NOT NULL AND m.demographicNo <> '' AND m.demographicNo > 0)"
+    },
+    {
+        "target": "Entry.011",
+        "query": "SELECT 'preventions' AS source_table, 011 as entry_id, p.id AS emr_id, p.demographic_no AS emr_patient_id FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryState.011",
+        "query": "SELECT 'preventions' AS source_table, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.001",
+        "query": "SELECT 'preventions' AS source_table , 11.001 AS attribute_id , p.demographic_no AS emr_entry_id , 'CVX' AS code_system , p.prevention_type AS code_value , `name`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) LEFT JOIN preventionsExt `name` ON ( `dose`.prevention_id = `name`.prevention_id AND `name`.keyval = 'name' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.003",
+        "query": "SELECT 'preventions' AS source_table , 11.003 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.prevention_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.005",
+        "query": "SELECT 'preventions' AS source_table , 11.005 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , `dose`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.007",
+        "query": "SELECT 'preventions' AS source_table , 11.007 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , IF(p.refused > 0, 1, 0) AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.008",
+        "query": "SELECT 'preventions' AS source_table , 11.008 AS attribute_id , p.demographic_no AS emr_entry_id , 'OSCAR' AS code_system , CASE WHEN p.refused = 1 THEN 'Refused' WHEN p.refused = 2 THEN 'Ineligible' ELSE NULL END AS code_value , `neverReason`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) LEFT JOIN preventionsExt `neverReason` ON ( `dose`.prevention_id = `neverReason`.prevention_id AND `neverReason`.keyval = 'neverReason' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.010",
+        "query": "SELECT 'preventions' AS source_table , 11.010 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , `location`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) LEFT JOIN preventionsExt `location` ON ( `dose`.prevention_id = `location`.prevention_id AND `location`.keyval = 'location' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.012",
+        "query": "SELECT 'preventions' AS source_table , 11.012 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , `route`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) LEFT JOIN preventionsExt `route` ON ( `dose`.prevention_id = `route`.prevention_id AND `route`.keyval = 'route' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.011.013",
+        "query": "SELECT 'preventions' AS source_table , 11.013 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , `lot`.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) LEFT JOIN preventionsExt `lot` ON ( `dose`.prevention_id = `lot`.prevention_id AND `lot`.keyval = 'lot' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "Entry.012",
+        "query": "SELECT 'drugs' AS source_table, 012 as entry_id, drugid AS emr_id, demographic_no AS emr_patient_id FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryState.012",
+        "query": "SELECT 'drugs' AS source_table, drugid AS emr_id, IF( archived = 1, 'Archived', 'Not-Archived' ) AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, written_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.001",
+        "query": "SELECT 'drugs' AS source_table , 12.001 AS attribute_id , d.demographic_no AS emr_entry_id , CASE WHEN regional_identifier IS NOT NULL AND regional_identifier <> '' THEN 'DIN' WHEN GCN_SEQNO IS NOT NULL AND GCN_SEQNO <> '' THEN 'DrugRef' WHEN GN IS NOT NULL AND GN <> '' THEN 'Generic Name' ELSE 'Custom Name' END AS code_system , CASE WHEN regional_identifier IS NOT NULL AND regional_identifier <> '' THEN regional_identifier WHEN GCN_SEQNO IS NOT NULL AND GCN_SEQNO <> '' THEN GCN_SEQNO WHEN GN IS NOT NULL AND GN <> '' THEN GN ELSE customName END AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE (archived <> 1 AND archived_reason NOT LIKE '%deleted%')"
+    },
+    {
+        "target": "EntryAttribute.012.002",
+        "query": "SELECT 'drugs' AS source_table , 12.002 AS attribute_id , d.demographic_no AS emr_entry_id , 'ATC' AS code_system , ATC AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , written_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.003",
+        "query": "SELECT 'drugs' AS source_table , 12.003 AS attribute_id , d.demographic_no AS emr_entry_id , CASE WHEN d.outside_provider_name IS NOT NULL AND d.outside_provider_name <> '' THEN 'CFPC' ELSE 'OSCAR' END AS code_system , CASE WHEN d.outside_provider_name IS NOT NULL AND d.outside_provider_name <> '' THEN d.outside_provider_ohip ELSE IFNULL(p.provider_no, p2.provider_no) END AS code_value , CASE WHEN d.outside_provider_name IS NOT NULL AND d.outside_provider_name <> '' THEN d.outside_provider_name ELSE CONCAT( IFNULL(p.first_name,p2.first_name), ' ', IFNULL(p.last_name,p2.last_name) ) END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , pr.script_no AS emr_reference FROM drugs d LEFT JOIN prescription pr ON( pr.script_no = d.script_no ) LEFT JOIN provider p ON (pr.provider_no = p.provider_no AND pr.provider_no IS NOT NULL ) LEFT JOIN provider p2 ON ( d.provider_no = p2.provider_no AND d.provider_no IS NOT NULL AND d.provider_no <> '' ) WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.004",
+        "query": "SELECT 'drugs' AS source_table , 12.004 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , TRIM( SUBSTRING_INDEX( SUBSTRING_INDEX(special, '\n', 2), '\n', -1) ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.005",
+        "query": "SELECT 'drugs' AS source_table , 12.005 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , prn AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.006",
+        "query": "SELECT 'drugs' AS source_table , 12.006 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , d.takemax AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.007",
+        "query": "SELECT 'drugs' AS source_table , 12.007 AS attribute_id , d.demographic_no AS emr_entry_id , 'CDPD' AS code_system , d.drug_form AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.008",
+        "query": "SELECT 'drugs' AS source_table , 12.008 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.rx_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.009",
+        "query": "SELECT 'drugs' AS source_table , 12.009 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD( DAY , 1 , CASE WHEN DATE(d.archived_date) < DATE(d.end_date) THEN d.archived_date ELSE d.end_date END ) ) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.010",
+        "query": "SELECT 'drugs' AS source_table , 12.010 AS attribute_id , d.demographic_no AS emr_entry_id , dr.codingSystem AS code_system , dr.`code` AS code_value , dr.comments AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , dr.id AS emr_reference FROM drugs d LEFT JOIN drugReason dr ON (dr.drugId = d.drugid ) WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.011",
+        "query": "SELECT 'drugs' AS source_table , 12.011 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , CASE WHEN DATE(d.archived_date) < DATE(d.end_date) THEN d.archived_reason ELSE 'Completed' END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.012",
+        "query": "SELECT 'drugs' AS source_table , 12.012 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , CASE WHEN d.archived = 1 THEN 'Stopped' WHEN d.long_term = 1 THEN 'Long Term' WHEN DATE(d.end_date) < DATE( NOW() ) THEN 'Active' WHEN DATE(d.end_date) > DATE( NOW() ) THEN 'Completed' ELSE 'Unknown' END AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.013",
+        "query": "SELECT 'drugs' AS source_table , 12.013 AS attribute_id , d.demographic_no AS emr_entry_id , 'CDPD' AS code_system , d.drug_form AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.014",
+        "query": "SELECT 'drugs' AS source_table , 12.014 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , d.dosage AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.015",
+        "query": "SELECT 'drugs' AS source_table , 12.014 AS attribute_id , d.demographic_no AS emr_entry_id , 'ANSI x3.50-1986' AS code_system , d.unit AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.016",
+        "query": "SELECT 'drugs' AS source_table , 12.016 AS attribute_id , d.demographic_no AS emr_entry_id , 'Latin' AS code_system , d.freqcode AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.017",
+        "query": "SELECT 'drugs' AS source_table , 12.017 AS attribute_id , d.demographic_no AS emr_entry_id , 'latin' AS code_system , d.route AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.018",
+        "query": "SELECT 'drugs' AS source_table , 12.018 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , d.duration AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL ) and (d.duration is not null and d.duration regexp '^[0-9]+$')"
+    },
+    {
+        "target": "EntryAttribute.012.019",
+        "query": "SELECT 'drugs' AS source_table , 12.019 AS attribute_id , d.demographic_no AS emr_entry_id , 'OSCAR' AS code_system , d.durunit AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.020",
+        "query": "SELECT 'drugs' AS source_table , 12.020 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , d.quantity AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL ) and (d.quantity is not null and d.quantity regexp '^[0-9]+$')"
+    },
+    {
+        "target": "EntryAttribute.012.021",
+        "query": "SELECT 'drugs' AS source_table , 12.021 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , d.refill_quantity AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "EntryAttribute.012.022",
+        "query": "SELECT 'drugs' AS source_table , 12.022 AS attribute_id , d.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , d.long_term AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , d.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+    },
+    {
+        "target": "Entry.014",
+        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, demographic_no AS emr_patient_id FROM dxresearch"
+    },
+    {
+        "target": "EntryState.014",
+        "query": "SELECT 'dxresearch' AS source_table, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, dxresearch_no AS emr_id, status AS state, case when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') <> DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status = 'A' then DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') when DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') = DATE_FORMAT(update_date, '%Y-%m-%dT%T.%fZ') and status <> 'A' then DATE_FORMAT(TIMESTAMPADD(MICROSECOND, +1, update_date), '%Y-%m-%dT%T.%fZ') end as effective_date, null AS emr_reference FROM dxresearch"
+    },
+    {
+        "target": "EntryAttribute.014.001",
+        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, demographic_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, start_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM dxresearch"
+    },
+    {
+        "target": "EntryAttribute.014.002",
+        "query": "SELECT 'dxresearch' AS source_table, 14.001 AS attribute_id, demographic_no AS emr_entry_id, coding_system AS code_system, dxresearch_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, dxresearch_no AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, start_date )), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM dxresearch"
+    },
+    {
+        "target": "Entry.015",
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, p.demographic_no AS emr_patient_id FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryState.015",
+        "query": "SELECT 'preventions' AS source_table, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.015.001",
+        "query": "SELECT 'preventions' AS source_table , 15.001 AS attribute_id , p.demographic_no AS emr_entry_id , 'OSCAR' AS code_system , p.prevention_type AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.015.002",
+        "query": "SELECT 'preventions' AS source_table , 15.002 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.next_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.015.003",
+        "query": "SELECT 'preventions' AS source_table , 15.003 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.prevention_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.015.004",
+        "query": "SELECT 'preventions' AS source_table , 15.004 AS attribute_id , p.demographic_no AS emr_entry_id , 'OSCAR' AS code_system , p.provider_no AS code_value , CONCAT( pr.first_name, ' ', pr.last_name ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) LEFT JOIN provider pr ON (pr.provider_no = p.provider_no AND p.provider_no <> '') WHERE p.deleted = 0"
+    },
+    {
+        "target": "EntryAttribute.015.006",
+        "query": "SELECT 'preventions' AS source_table , 15.006 AS attribute_id , p.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , reason.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) LEFT JOIN preventionsExt `reason` ON ( `reason`.prevention_id = `result`.prevention_id AND `reason`.keyval = 'reason' ) WHERE p.deleted = 0"
+    },
+    {
+        "target": "Entry.017",
+        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION ALL SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
+    },
+    {
+        "target": "EntryState.017",
+        "query": "SELECT 'demographic' AS source_table, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, lastUpdateDate)), '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, id, lastUpdateDate), '%Y-%m-%dT%T.%fZ') AS effective_date, id AS emr_reference FROM demographicArchive ) AS t WHERE t.effective_date IS NOT NULL"
+    },
+    {
+        "target": "EntryAttribute.017.001",
+        "query": "SELECT 'demographic' AS source_table, 17.001 AS attribute_id, identifier.demographic_no AS emr_entry_id, identifier.type AS code_system, NULL AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, identifier.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, identifier.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, identifier.emr_reference AS emr_reference FROM ( SELECT phn.demographic_no AS 'emr_id', phn.demographic_no, phn.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'PHN' AS 'type', phn.hc_type AS 'issuer', phn.hin AS 'val' FROM demographic phn UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(fnha.date_time, d.lastUpdateDate) AS 'effective_date', fnha.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', fnha.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'statusNum' ) fnha ON( d.demographic_no = fnha.demographic_no ) UNION ALL SELECT archivePhn.id AS 'emr_id', archivePhn.demographic_no, archivePhn.lastUpdateDate AS 'effective_date', archivePhn.id AS 'emr_reference', 'PHN' AS 'type', archivePhn.hc_type AS 'issuer', archivePhn.hin AS 'val' FROM demographicArchive archivePhn UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveFnha.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', archiveFnha.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'statusNum' ) archiveFnha ON( archiveD.id = archiveFnha.archiveId) ) identifier"
+    },
+    {
+        "target": "EntryAttribute.017.002",
+        "query": "SELECT 'demographic' AS source_table, 17.002 AS attribute_id, identifier.demographic_no AS emr_entry_id, identifier.`issuer` AS code_system, NULL AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, identifier.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, identifier.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, identifier.emr_reference AS emr_reference FROM ( SELECT phn.demographic_no AS 'emr_id', phn.demographic_no, phn.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'PHN' AS 'type', phn.hc_type AS 'issuer', phn.hin AS 'val' FROM demographic phn UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(fnha.date_time, d.lastUpdateDate) AS 'effective_date', fnha.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', fnha.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'statusNum' ) fnha ON( d.demographic_no = fnha.demographic_no ) UNION ALL SELECT archivePhn.id AS 'emr_id', archivePhn.demographic_no, archivePhn.lastUpdateDate AS 'effective_date', archivePhn.id AS 'emr_reference', 'PHN' AS 'type', archivePhn.hc_type AS 'issuer', archivePhn.hin AS 'val' FROM demographicArchive archivePhn UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveFnha.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', archiveFnha.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'statusNum' ) archiveFnha ON( archiveD.id = archiveFnha.archiveId) ) identifier"
+    },
+    {
+        "target": "EntryAttribute.017.003",
+        "query": "SELECT 'demographic' AS source_table, 17.003 AS attribute_id, identifier.demographic_no AS emr_entry_id, NULL AS code_system, NULL AS code_value, identifier.val AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, identifier.emr_id AS emr_id, DATE_FORMAT(TIMESTAMPADD(MICROSECOND, -1, TIMESTAMPADD(DAY, 1, identifier.effective_date)), '%Y-%m-%dT%T.%fZ') AS effective_date, identifier.emr_reference AS emr_reference FROM ( SELECT phn.demographic_no AS 'emr_id', phn.demographic_no, phn.lastUpdateDate AS 'effective_date', NULL AS 'emr_reference', 'PHN' AS 'type', phn.hc_type AS 'issuer', phn.hin AS 'val' FROM demographic phn UNION ALL SELECT d.demographic_no AS 'emr_id', d.demographic_no, IFNULL(fnha.date_time, d.lastUpdateDate) AS 'effective_date', fnha.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', fnha.`value` AS 'val' FROM demographic d LEFT JOIN ( SELECT demographic_no, `value`, date_time, id FROM demographicExt WHERE key_val LIKE 'statusNum' ) fnha ON( d.demographic_no = fnha.demographic_no ) UNION ALL SELECT archivePhn.id AS 'emr_id', archivePhn.demographic_no, archivePhn.lastUpdateDate AS 'effective_date', archivePhn.id AS 'emr_reference', 'PHN' AS 'type', archivePhn.hc_type AS 'issuer', archivePhn.hin AS 'val' FROM demographicArchive archivePhn UNION ALL SELECT archiveD.id AS 'emr_id', archiveD.demographic_no, IFNULL(archiveFnha.date_time, archiveD.lastUpdateDate) AS 'effective_date', archiveD.id AS 'emr_reference', 'FNHA' AS 'type', 'FNHA' AS 'issuer', archiveFnha.`value` AS 'val' FROM demographicArchive archiveD LEFT JOIN ( SELECT demographic_no, `value`, date_time, archiveId FROM demographicExtArchive WHERE key_val LIKE 'statusNum' ) archiveFnha ON( archiveD.id = archiveFnha.archiveId) ) identifier"
+    }
+]
