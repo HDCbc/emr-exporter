@@ -41,13 +41,13 @@ function runExporter() {
 
 function runInitializer() {
   console.log('Running Initializer');
-  initializer.run((err, res) => {
+  initializer.run((err) => {
     if (err) {
-      console.log('Run Successful');
-      process.exit(3);
+      console.error('Initialization Error', err);
+      exit(3);
     }
-    console.log('ERROR: Run Error', err);
-    process.exit(0);
+    console.log('Initialization Successful');
+    exit(0);
   });
 }
 
