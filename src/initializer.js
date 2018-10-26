@@ -89,6 +89,7 @@ function createEnv(baseEnvPath, userConfig, callback) {
   content = content.replace(/(source_password(?:\s*)=(?:\s*))(.*)/g, `$1${encryptedPassword}`);
   content = content.replace(/(target_host(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.endpointHost}`);
   content = content.replace(/(target_port(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.endpointPort}`);
+  content = content.replace(/(target_username(?:\s*)=(?:\s*))(.*)/g, `$1${userConfig.endpointAccount}`);
 
   const outputPath = path.join(process.cwd(), '.env');
   fs.writeFile(outputPath, content, callback);
@@ -120,15 +121,18 @@ function promptUserConfig(callback) {
   let dbDialect;
   let dbHost;
   let dbPort;
+  let defEndpointAccount;
 
   if (mapping === 'mois') {
     dbDialect = 'postgres';
     dbHost = 'localhost';
     dbPort = '5432';
+    defEndpointAccount = 'mois';
   } else if (mapping === 'oscar') {
     dbDialect = 'mysql';
     dbHost = 'localhost';
     dbPort = '3306';
+    defEndpointAccount = 'exporter';
   }
 
   const dbDatabase = requireQuestion('EMR Database Name: ');
@@ -136,6 +140,7 @@ function promptUserConfig(callback) {
   const dbPass = requireQuestion('EMR Database Password: ', { hideEchoBack: true });
   const endpointHost = requireQuestion('Endpoint IP: ');
   const endpointPort = requireQuestion('Endpoint Port (22): ', { defaultInput: '22' });
+  const endpointAccount = requireQuestion(`Endpoint Account (${defEndpointAccount}): `, { defaultInput: defEndpointAccount });
 
   return callback(null, {
     dbDialect,
@@ -146,6 +151,7 @@ function promptUserConfig(callback) {
     dbPass,
     endpointHost,
     endpointPort,
+    endpointAccount,
   });
 }
 
