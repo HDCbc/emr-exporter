@@ -19,7 +19,7 @@ function get() {
   nconf.overrides({
     compressFormat: 'zip',
     dateFormat: 'YYYY_MM_DD_HH_mm_ss',
-    workingDirMode: '700',
+    workingDirMode: '0770',
   });
 
   // The command line arguments have a high priority.
@@ -50,6 +50,7 @@ function get() {
       path: '/hdc/crypt/uploads',
     },
   });
+
 
   // Create the configuration object.
   // Note that we convert the underscore format to a more javascript friendly camel case format.
@@ -92,6 +93,7 @@ function validate(config, callback) {
     source: Joi.object().keys({
       dialect: Joi.string(),
       host: Joi.string(),
+      port: Joi.number().integer().min(1),
       database: Joi.string(),
       user: Joi.string(),
       password: Joi.string(),
@@ -112,7 +114,7 @@ function validate(config, callback) {
       tailable: Joi.boolean(),
     }),
     compressFormat: Joi.string().regex(/^(tar|zip)$/),
-    workingDirMode: Joi.string().regex(/^(0|1|2|3|4|5|6|7){3}$/),
+    workingDirMode: Joi.string().regex(/^(0|1|2|3|4|5|6|7){4}$/),
     dateFormat: Joi.string(),
   });
 
@@ -152,7 +154,14 @@ function isInit() {
   return nconf.get('init');
 }
 
+function isSetPassword() {
+  nconf.argv();
+
+  return nconf.get('password');
+}
+
 module.exports = {
   load,
   isInit,
+  isSetPassword,
 };

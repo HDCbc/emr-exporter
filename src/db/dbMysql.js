@@ -6,10 +6,12 @@ const winston = require('winston');
 module.exports = (() => {
   let pool;
 
-  const init = (config, callback) => {
-    winston.verbose('db.init()');
+  const init = (config) => {
+    winston.verbose('db.init[]');
+    winston.verbose('config', { config });
+    winston.verbose('mysql', { mysql });
     pool = mysql.createPool(config);
-    callback(null);
+    winston.verbose('after create pool');
   };
 
   const cleanup = (callback) => {
