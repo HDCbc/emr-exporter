@@ -9,7 +9,6 @@ module.exports = (() => {
   const init = (config) => {
     winston.verbose('db.init()');
     pool = mysql.createPool(config);
-    callback(null);
   };
 
   const cleanup = (callback) => {
