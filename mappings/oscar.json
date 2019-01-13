@@ -249,7 +249,7 @@
     },
     {
         "target": "Entry.012",
-        "query": "SELECT 'drugs' AS source_table, 012 as entry_id, drugid AS emr_id, demographic_no AS emr_patient_id FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table, 012 as entry_id, drugid AS emr_id, demographic_no AS emr_patient_id FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL OR archived_reason = '' )"
     },
     {
         "target": "EntryState.012",
