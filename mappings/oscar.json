@@ -13,7 +13,7 @@
     },
     {
         "target": "PatientState",
-        "query": "SELECT t.emr_patient_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_patient_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT demographic_no AS emr_patient_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
+        "query": "SELECT t.emr_patient_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_patient_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION ALL SELECT d.demographic_no AS emr_patient_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
     },
     {
         "target": "PatientPractitioner",
@@ -25,7 +25,7 @@
     },
     {
         "target": "EntryState.001",
-        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL"
+        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT d.demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.001.001",
@@ -121,7 +121,7 @@
     },
     {
         "target": "EntryState.006",
-        "query": "SELECT 'demographic' AS source_table, 006 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
+        "query": "SELECT 'demographic' AS source_table, 006 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT d.demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
     },
     {
         "target": "EntryAttribute.006.001",
@@ -389,7 +389,7 @@
     },
     {
         "target": "EntryState.017",
-        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
+        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, t.emr_id, t.state, t.effective_date, t.emr_reference FROM ( SELECT demographic_no AS emr_id, patient_status AS state, lastUpdateDate AS effective_date, NULL AS emr_reference FROM demographic UNION SELECT d.demographic_no AS emr_id, patient_status AS state, CASE WHEN id = max_id THEN DATE_ADD(lastUpdateDate, INTERVAL 1 SECOND) ELSE lastUpdateDate END AS effective_date, id AS emr_reference FROM demographicArchive d LEFT JOIN (SELECT demographic_no, max(id) AS max_id FROM demographicArchive GROUP BY demographic_no) max_d ON d.id = max_d.max_id) AS t WHERE t.effective_date IS NOT NULL AND year(t.effective_date) > 1900"
     },
     {
         "target": "EntryAttribute.017.001",
