@@ -213,7 +213,7 @@
     },
     {
         "target": "EntryState.011",
-        "query": "SELECT 'preventions' AS source_table, 011 as entry_id, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 011 as entry_id, p.id AS emr_id, 'A' AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryAttribute.011.001",
@@ -361,7 +361,7 @@
     },
     {
         "target": "EntryState.015",
-        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, NULL AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, 'A' AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryAttribute.015.001",
