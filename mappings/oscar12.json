@@ -269,7 +269,7 @@
     },
     {
         "target": "EntryAttribute.012.009",
-        "query": "SELECT 'drugs' AS source_table , 12.009 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD( DAY , 1 , CASE WHEN DATE(d.archived_date) < DATE(d.end_date) THEN d.archived_date ELSE d.end_date END ) ) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table , 12.009 AS attribute_id , d.drugid AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD( DAY , 1 , CASE WHEN YEAR(d.archived_date) < 1900 THEN d.end_date WHEN DATE(d.archived_date) < DATE(d.end_date) THEN d.archived_date ELSE d.end_date END ) ) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
     },
     {
         "target": "EntryAttribute.012.010",
