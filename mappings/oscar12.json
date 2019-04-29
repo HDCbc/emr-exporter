@@ -337,7 +337,7 @@
     },
     {
         "target": "Entry.015",
-        "query": "SELECT 'preventions' AS source_table, 015 AS entry_id,P.ID AS emr_id, NULL AS emr_reference FROM preventions P INNER JOIN preventionsExt r ON ( P.ID = r.prevention_id AND r.keyval = 'result' ) WHERE P.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, p.demographic_no AS emr_patient_id FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryState.015",
