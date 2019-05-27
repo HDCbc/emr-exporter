@@ -329,7 +329,7 @@
     },
     {
         "target": "EntryState.014",
-        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, status AS state, update_date as effective_date, null AS emr_reference FROM dxresearch"
+        "query": "SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, 'A' AS state, DATE_FORMAT(start_date, '%Y-%m-%dT%T.%fZ') as effective_date, null AS emr_reference FROM dxresearch union SELECT 'dxresearch' AS source_table, 014 as entry_id, dxresearch_no AS emr_id, status AS state, DATE_ADD(update_date, INTERVAL 1 SECOND) as effective_date, null AS emr_reference FROM dxresearch"
     },
     {
         "target": "EntryAttribute.014.001",
