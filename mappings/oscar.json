@@ -253,7 +253,7 @@
     },
     {
         "target": "EntryState.012",
-        "query": "SELECT 'drugs' AS source_table, 012 AS entry_id, drugid AS emr_id, IF(archived = 1, 'Archived', 'Not-Archived') AS state, CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date, NULL AS emr_reference FROM drugs WHERE ( archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL )"
+        "query": "SELECT 'drugs' AS source_table, 012 AS entry_id, drugid AS emr_id, IF(archived = 1, 'Archived', 'Not-Archived') AS state, archived_date AS effective_date, NULL AS emr_reference FROM drugs WHERE (archived_reason NOT LIKE '%deleted%' OR archived_reason IS NULL) UNION ALL SELECT 'drugs' AS source_table, 012 AS entry_id, drugid AS emr_id, 'Active' AS state, CAST(COALESCE(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) AS DATE) AS effective_date, NULL AS emr_reference FROM drugs WHERE archived_date IS NOT NULL"
     },
     {
         "target": "EntryAttribute.012.001",
