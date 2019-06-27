@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const nconf = require('nconf');
 const path = require('path');
 const fs = require('fs');

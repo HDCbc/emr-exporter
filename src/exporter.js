@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const archiver = require('archiver');
 const async = require('async');
-const dbFactory = require('./db/dbFactory');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const moment = require('moment');
@@ -10,6 +9,8 @@ const progress = require('progress-stream');
 const rimraf = require('rimraf');
 const ssh2 = require('ssh2');
 const winston = require('winston');
+
+const dbFactory = require('./db/dbFactory');
 
 let logger;
 
@@ -233,7 +234,6 @@ const exportQueryToCSV = (db, filepath, sql, callback) => {
       return callback(err);
     }
 
-    // TODO - This is not ideal. Should really be using the async version.
     const sizeBytes = fs.statSync(filepath).size;
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(3);
     const basename = path.basename(filepath);
@@ -545,7 +545,6 @@ function run(options, callback) {
     connectionInterval,
     dateFormat,
     mapping,
-    prepareFile,
     parallelExtracts,
     source,
     target,

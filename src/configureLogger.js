@@ -73,6 +73,6 @@ module.exports = ((config) => {
   });
 
   const logger = winston.loggers.get('app');
-  logger.on('error', e => console.log('Logger Error', e));
+  logger.on('error', e => console.log('Logger Error', e)); // eslint-disable-line no-console
   logger.log = expandErrors(logger);
 });

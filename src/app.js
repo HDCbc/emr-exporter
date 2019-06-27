@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 const winston = require('winston');
 const exporter = require('./exporter');
 const initializer = require('./initializer');

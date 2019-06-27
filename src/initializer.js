@@ -160,7 +160,7 @@ function run(callback) {
     console.log('# CONFIGURING');
     console.log('#####################################################################');
 
-    async.auto({
+    return async.auto({
       sshDir: cb => makeDir('./ssh', cb),
       logDir: ['sshDir', (params, cb) => makeDir('./logs', cb)],
       workingDir: ['logDir', (params, cb) => makeDir('./working', cb)],
