@@ -7,10 +7,10 @@ const config = require('./config');
 const configureLogger = require('./configureLogger');
 
 function exit(code) {
-  const logger = winston.loggers.get('app');
-  logger.log('info', `Exit Code ${code}`, code);
-  logger.on('finish', () => process.exit());
-  logger.end();
+  const appLogger = winston.loggers.get('app');
+  appLogger.log('info', `Exit Code ${code}`, code);
+  appLogger.on('finish', () => process.exit());
+  appLogger.end();
 }
 
 /**
