@@ -45,6 +45,7 @@ function get() {
       maxFiles: 10,
       zippedArchive: true,
       tailable: true,
+      timezone: 'America/Vancouver',
     },
     source: {
       host: 'localhost',
@@ -113,6 +114,7 @@ function validate(config, callback) {
     logger: Joi.object().keys({
       level: Joi.string().regex(/^(error|warn|info|verbose|debug|silly)$/),
       filename: Joi.string(),
+      timezone: Joi.string(),
       maxsize: Joi.number().integer().min(1),
       maxFiles: Joi.number().integer().min(1),
       zippedArchive: Joi.boolean(),
@@ -152,7 +154,7 @@ function load(callback) {
 
     let cleartextPassword;
 
-    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so 
+    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so
     // we need to encrypt it.
     if (!res.source.password.startsWith('ENC:')) {
       const encrypted = password.encrypt(res.source.password, secret);

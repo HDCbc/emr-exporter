@@ -4,10 +4,8 @@
   "description": "Vendor agnostic application to export Universal Schema data from an Electronic Medical Record database and securely transfer results to a remote server.",
   "main": "index.js",
   "scripts": {
-    "doc": "jsdoc -c jsdoc.json",
     "lint": "eslint *.js src",
     "depcheck": "depcheck",
-    "seccheck": "nsp check",
     "build": "pkg . --out-path ./build/",
     "start": "node index.js",
     "clean": "rm -rf ./build"
@@ -29,13 +27,13 @@
   "dependencies": {
     "archiver": "^2.1.0",
     "async": "^2.6.0",
-    "chalk": "^2.3.0",
     "dotenv": "^4.0.0",
     "ip": "^1.1.5",
     "joi": "^13.0.2",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "moment": "^2.20.1",
+    "moment-timezone": "^0.5.25",
     "mysql": "^2.15.0",
     "nconf": "^0.10.0",
     "node-forge": "^0.7.1",
@@ -45,16 +43,13 @@
     "readline-sync": "^1.4.9",
     "rimraf": "^2.6.2",
     "ssh2": "^0.5.5",
-    "winston": "^2.4.0",
-    "winston-log-and-exit": "^1.0.6"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "depcheck": "^0.6.8",
     "eslint": "^4.9.0",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.7.0",
-    "jsdoc": "^3.5.5",
-    "nsp": "^3.1.0"
+    "eslint-plugin-import": "^2.7.0"
   },
   "pkg": {
     "assets": [

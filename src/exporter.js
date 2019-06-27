@@ -3,13 +3,15 @@ const archiver = require('archiver');
 const async = require('async');
 const dbFactory = require('./db/dbFactory');
 const fs = require('fs');
-const logger = require('winston');
 const mkdirp = require('mkdirp');
 const moment = require('moment');
 const path = require('path');
 const progress = require('progress-stream');
 const rimraf = require('rimraf');
 const ssh2 = require('ssh2');
+const winston = require('winston');
+
+let logger;
 
 /**
  * Change the permissions (mode) of a file or directory.
@@ -531,7 +533,8 @@ function waitForConnection(db, times, interval, callback) {
  */
 function run(options, callback) {
   const start = Date.now();
-  
+  logger = winston.loggers.get('app');
+
   logger.info(_.repeat('=', 160));
   logger.info('Run Started');
 

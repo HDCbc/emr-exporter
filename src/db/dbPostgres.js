@@ -8,6 +8,7 @@ module.exports = (() => {
   // The current pool of connections.
   // This will not be instantiated until the init function is called.
   let pool;
+  let logger;
 
   /**
    * Initializes the connection pool for the target database.
@@ -17,6 +18,7 @@ module.exports = (() => {
    */
   const init = (config) => {
     pool = new pg.Pool(config);
+    logger = winston.loggers.get('app');
   };
 
   /**
@@ -40,7 +42,7 @@ module.exports = (() => {
       ENCODING 'LATIN1' ESCAPE '\\';
     `;
 
-    winston.debug('Postgres Export', exportQuery);
+    logger.debug('Postgres Export', exportQuery);
 
     pool.query(exportQuery, (err, res) => {
       if (err) {
@@ -51,7 +53,7 @@ module.exports = (() => {
   };
 
   const query = ({ q, p = [] }, callback) => {
-    winston.debug('Postgres Query', q);
+    logger.debug('Postgres Query', q);
     pool.query(q, p, (err, res) => {
       if (err) {
         return callback(err);

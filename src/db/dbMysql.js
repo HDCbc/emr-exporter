@@ -1,18 +1,18 @@
 const mysql = require('mysql');
 const winston = require('winston');
 
-// TODO Cleanup this file
-
 module.exports = (() => {
   let pool;
+  let logger;
 
   const init = (config) => {
-    winston.verbose('db.init()');
+    logger = winston.loggers.get('app');
+    logger.verbose('db.init()');
     pool = mysql.createPool(config);
   };
 
   const cleanup = (callback) => {
-    winston.verbose('db.cleanup()');
+    logger.verbose('db.cleanup()');
     if (pool) {
       pool.end(callback);
     } else {
@@ -21,7 +21,7 @@ module.exports = (() => {
   };
 
   const query = ({ q }, callback) => {
-    winston.debug('db.query()', { q });
+    logger.debug('db.query()', { q });
     pool.query(q, (err, res) => {
       if (err) {
         return callback({
@@ -45,7 +45,7 @@ module.exports = (() => {
       LINES TERMINATED BY '\n'
     `;
 
-    winston.debug('db_mysql.exportData()', exportQuery);
+    logger.debug('db_mysql.exportData()', exportQuery);
 
     pool.query(exportQuery, (err, res) => {
       if (err) {

@@ -1,11 +1,14 @@
+const winston = require('winston');
 const exporter = require('./exporter');
 const initializer = require('./initializer');
 const config = require('./config');
 const configureLogger = require('./configureLogger');
 
 function exit(code) {
-  const logger = require('winston'); //eslint-disable-line
-  logger.log_and_exit('info', `Exit Code ${code}`, code);
+  const logger = winston.loggers.get('app');
+  logger.log('info', `Exit Code ${code}`, code);
+  logger.on('finish', () => process.exit());
+  logger.end();
 }
 
 /**
