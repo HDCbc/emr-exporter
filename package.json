@@ -6,11 +6,13 @@
   "scripts": {
     "doc": "jsdoc -c jsdoc.json",
     "lint": "eslint *.js src",
-    "depcheck": "depcheck",
+    "depcheck": "npx depcheck",
+    "stylecheck": "eslint **/*.js",
     "seccheck": "nsp check",
     "build": "pkg . --out-path ./build/",
     "start": "node index.js",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./build",
+    "check": "npm audit && npm run depcheck && npm outdated && npm run stylecheck"
   },
   "repository": {
     "type": "git",
@@ -27,34 +29,32 @@
   },
   "homepage": "https://github.com/HDCbc/emr-exporter#readme",
   "dependencies": {
-    "archiver": "^2.1.0",
-    "async": "^2.6.0",
-    "chalk": "^2.3.0",
-    "dotenv": "^4.0.0",
+    "archiver": "^4.0.0",
+    "async": "^3.2.0",
+    "chalk": "^4.1.0",
+    "dotenv": "^8.2.0",
     "ip": "^1.1.5",
-    "joi": "^13.0.2",
+    "joi": "^14.3.0",
     "lodash": "^4.17.4",
-    "mkdirp": "^0.5.1",
-    "moment": "^2.20.1",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
     "mysql": "^2.15.0",
     "nconf": "^0.10.0",
-    "node-forge": "^0.7.1",
-    "pg": "^7.4.0",
-    "printf": "^0.2.5",
+    "node-forge": "^0.9.1",
+    "pg": "^8.2.2",
+    "printf": "^0.5.3",
     "progress-stream": "^2.0.0",
     "readline-sync": "^1.4.9",
-    "rimraf": "^2.6.2",
-    "ssh2": "^0.5.5",
-    "winston": "^2.4.0",
-    "winston-log-and-exit": "^1.0.6"
+    "rimraf": "^3.0.2",
+    "ssh2": "^0.8.9",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
-    "depcheck": "^0.6.8",
-    "eslint": "^4.9.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.7.0",
-    "jsdoc": "^3.5.5",
-    "nsp": "^3.1.0"
+    "depcheck": "^1.0.0",
+    "eslint": "^7.4.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "jsdoc": ">=3.6.4"
   },
   "pkg": {
     "assets": [
