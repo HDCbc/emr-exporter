@@ -152,7 +152,7 @@ function load(callback) {
 
     let cleartextPassword;
 
-    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so 
+    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so
     // we need to encrypt it.
     if (!res.source.password.startsWith('ENC:')) {
       const encrypted = password.encrypt(res.source.password, secret);
