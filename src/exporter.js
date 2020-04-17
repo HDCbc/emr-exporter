@@ -1,15 +1,14 @@
 const _ = require('lodash');
 const archiver = require('archiver');
 const async = require('async');
-const dbFactory = require('./db/dbFactory');
+const ssh2 = require('ssh2');
 const fs = require('fs');
 const logger = require('winston');
-const mkdirp = require('mkdirp');
 const moment = require('moment');
 const path = require('path');
 const progress = require('progress-stream');
 const rimraf = require('rimraf');
-const ssh2 = require('ssh2');
+const dbFactory = require('./db/dbFactory');
 
 /**
  * Change the permissions (mode) of a file or directory.
@@ -88,7 +87,7 @@ function createDirectory(dir, callback) {
   const start = Date.now();
   logger.info('Create Directory Started', { dir });
 
-  mkdirp(dir, (err) => {
+  fs.mkdir(dir, { recursive: true }, (err) => {
     const elapsedSec = (Date.now() - start) / 1000;
     if (err) {
       logger.error('Create Directory Failure', err);
@@ -165,10 +164,10 @@ function exportData(tasks, parallelLimit, callback) {
 
     // Retrieve the sum of rows/size/time for all of the tasks that were run.
     const resArray = _.toArray(res);
-    const rows = _.sumBy(resArray, t => (t.rows ? t.rows : 0));
-    const serialMs = _.sumBy(resArray, t => (t.ms ? t.ms : 0));
+    const rows = _.sumBy(resArray, (t) => (t.rows ? t.rows : 0));
+    const serialMs = _.sumBy(resArray, (t) => (t.ms ? t.ms : 0));
     const serialSec = serialMs / 1000;
-    const sizeBytes = _.sumBy(resArray, t => (t.bytes ? t.bytes : 0));
+    const sizeBytes = _.sumBy(resArray, (t) => (t.bytes ? t.bytes : 0));
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
 
     logger.info('Export Data Success', {
@@ -262,7 +261,7 @@ function initConnection(config, callback) {
   const start = Date.now();
 
   // Mask the password before logging
-  const logConfig = Object.assign({}, config, { password: 'XXX' });
+  const logConfig = { ...config, ...{ password: 'XXX' } };
   logger.info('Init Connection Started', logConfig);
 
   dbFactory.init(config, (err, db) => {
@@ -493,7 +492,7 @@ function waitForConnection(db, times, interval, callback) {
   logger.info('Wait for Connection Started', { times, interval });
 
   // This function runs a simple query against the database.
-  const testConnection = cb => db.query({ q: 'select 1' }, cb);
+  const testConnection = (cb) => db.query({ q: 'select 1' }, cb);
 
   // The current attempt (zero-based). This is used for logging only, the actual logic of retries
   // is handled by the async.retry function.
@@ -531,7 +530,7 @@ function waitForConnection(db, times, interval, callback) {
  */
 function run(options, callback) {
   const start = Date.now();
-  
+
   logger.info(_.repeat('=', 160));
   logger.info('Run Started');
 
@@ -542,7 +541,6 @@ function run(options, callback) {
     connectionInterval,
     dateFormat,
     mapping,
-    prepareFile,
     parallelExtracts,
     source,
     target,
@@ -557,12 +555,16 @@ function run(options, callback) {
   const remoteFile = path.posix.join(target.path, path.basename(exportFile));
 
   // Mask the password before logging.
-  const logOptions = Object.assign({}, options, {
-    source: Object.assign({}, options.source, { password: 'XXX' }),
-    tempExportDir,
-    exportFile,
-    remoteFile,
-  });
+  const logOptions = {
+    ...options,
+    ...{
+      source: { ...options.source, ...{ password: 'XXX' } },
+      tempExportDir,
+      exportFile,
+      remoteFile,
+    },
+  };
+
   logger.verbose('Configuration');
   _.forEach(_.keys(logOptions), (key) => {
     logger.verbose(`-${key}`, { value: logOptions[key] });
