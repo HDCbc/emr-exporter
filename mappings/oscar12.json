@@ -101,7 +101,11 @@
 	},
     {
         "target": "EntryAttribute.003.004",
+<<<<<<< HEAD
         "query": "SELECT 'billingmaster' AS source_table, 3.004 AS attribute_id, bm.billingmaster_no AS emr_entry_id, b.billingtype as code_system, bm.billing_code as code_value, bs.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, b.billing_date as effective_date, null as emr_reference FROM billingmaster bm left join billing b on b.billing_no = bm.billing_no left join (SELECT DISTINCT service_code, description, termination_date FROM billingservice ) bs on bm.billing_code = bs.service_code WHERE YEAR(billing_date) > 1900 and (bm.service_date <= bs.termination_date or bs.termination_date is null)"
+=======
+        "query": "SELECT 'billingmaster' AS source_table, 3.004 AS attribute_id, bm.billingmaster_no AS emr_entry_id, b.billingtype as code_system, bm.billing_code as code_value, bs.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, b.billing_date as effective_date, null as emr_reference FROM billingmaster bm left join billing b on b.billing_no = bm.billing_no left join (SELECT distinct service_code, description from billingservice where termination_date is null or termination_date > curdate()) bs on bm.billing_code = bs.service_code WHERE YEAR(billing_date) > 1900"
+>>>>>>> Test-Billing-Mapping-All-Attributes
     },
     {
         "target": "EntryAttribute.003.005",
