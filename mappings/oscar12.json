@@ -84,6 +84,10 @@
         "query": "SELECT 'allergies' AS source_table , 2.008 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , IF( a.archived = 1, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ'), NULL ) AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
     },
     {
+        "target": "EntryAttribute.003.008",
+	"query": "SELECT 'provider' as source_table, 3.008 as attribute_id, bm.billingmaster_no as emr_entry_id, null as code_system, concat(p.last_name, ', ', p.first_name) as text_value, null as date_value, null as boolean_value, null as numeric_value, p.provider_no as emr_id, bh.creation_date as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no JOIN provider p on bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
+    }
+    {
         "target": "Entry.005",
         "query": "SELECT 'demographic' AS `source_table`, 005 as entry_id, demographic_no AS `emr_id`, demographic_no AS `emr_patient_id` FROM demographic"
     },
