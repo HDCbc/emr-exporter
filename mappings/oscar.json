@@ -84,9 +84,29 @@
         "query": "SELECT 'allergies' AS source_table , 2.008 AS attribute_id , a.demographic_no AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , IF( a.archived = 1, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ'), NULL ) AS date_value , NULL AS boolean_value , NULL AS numeric_value , a.allergyid AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , a.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM allergies a"
     },
     {
+        "target": "EntryAttribute.003.002",
+        "query": "SELECT 'billing_history' AS source_table, 003.002 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'OSCAR' AS code_system, bst.billingstatus AS code_value, bst.displayNameExt AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bh.id AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM sandbox_emr.billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN billingstatus_types bst ON bst.billingstatus = bh.billingstatus WHERE YEAR(service_date) > 1900"
+    },
+    {
+        "target": "EntryAttribute.003.004",
+        "query": "SELECT 'billingmaster' AS source_table, 3.004 AS attribute_id, bm.billingmaster_no AS emr_entry_id, b.billingtype as code_system, bm.billing_code as code_value, bs.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, b.billing_date as effective_date, null as emr_reference FROM billingmaster bm left join billing b on b.billing_no = bm.billing_no left join (SELECT DISTINCT service_code, description, termination_date FROM billingservice ) bs on bm.billing_code = bs.service_code WHERE YEAR(billing_date) > 1900 and (bm.service_date <= bs.termination_date or bs.termination_date is null)"
+    },
+    { 
+        "target": "EntryAttribute.003.005",
+        "query": "SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code1 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code1 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900 UNION SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code2 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code2 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900 UNION SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code3 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code3 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900"
+    },
+    {
+      "target": "EntryAttribute.003.006",
+		  "query": "SELECT 'billinghistory' AS source_table, 3.006 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' as code_system, null as code_value, null as text_value, null as date_value , null as boolean_value, case when bh.seqNum = '' then null else cast(bh.seqNum as decimal) end as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no WHERE YEAR(service_date) > 1900 and bh.seqNum is not null and bh.seqNum <> ''"
+    },
+    {
         "target": "EntryAttribute.003.007",
-	"query": "SELECT 'billingmaster' AS source_table, 3.007 AS attribute_id, bm.billingmaster_no AS emr_entry_id, null as code_system, null as code_value, bm.original_claim as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm WHERE YEAR(date(bm.service_date)) > 1900 and bm.original_claim <> '00000000000000000000' and bm.original_claim is not null"
-    }
+	      "query": "SELECT 'billingmaster' AS source_table, 3.007 AS attribute_id, bm.billingmaster_no AS emr_entry_id, null as code_system, null as code_value, bm.original_claim as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm WHERE YEAR(date(bm.service_date)) > 1900 and bm.original_claim <> '00000000000000000000' and bm.original_claim is not null"
+    },
+    {
+      "target": "EntryAttribute.003.008",
+	    "query": "SELECT 'provider' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, p.provider_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference, p.* FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
+    },
     {
         "target": "Entry.005",
         "query": "SELECT 'demographic' AS `source_table`, 005 as entry_id, demographic_no AS `emr_id`, demographic_no AS `emr_patient_id` FROM demographic"
