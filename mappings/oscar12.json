@@ -85,7 +85,7 @@
     },
     {
         "target": "EntryAttribute.003.002",
-        "query": "SELECT 'billing_history' as source_table, 003.002 as attribute_id, bm.billingmaster_no as emr_entry_id, null as code_system, null as code_value, bst.displayNameExt as text_value, null as date_value, null as boolean_value, null as numeric_value, bh.id as emr_id, bh.creation_date as effective_date, null as emr_reference FROM sandbox_emr.billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no JOIN billingstatus_types bst on bst.billingstatus = bh.billingstatus WHERE YEAR(service_date) > 1900"
+        "query": "SELECT 'billing_history' AS source_table, 003.002 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'OSCAR' AS code_system, bst.billingstatus AS code_value, bst.displayNameExt AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bh.id AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM sandbox_emr.billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN billingstatus_types bst ON bst.billingstatus = bh.billingstatus WHERE YEAR(service_date) > 1900"
     },
     {
         "target": "Entry.005",
