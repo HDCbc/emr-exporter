@@ -107,6 +107,10 @@
 	"query": "SELECT 'billingmaster' AS source_table, 3.007 AS attribute_id, bm.billingmaster_no AS emr_entry_id, null as code_system, null as code_value, bm.original_claim as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm WHERE YEAR(date(bm.service_date)) > 1900 and bm.original_claim <> '00000000000000000000' and bm.original_claim is not null"
     }
     {
+        "target": "EntryAttribute.003.001",
+        "query": "SELECT 'billingmaster' AS source_table, 3.001 AS attribute_id, billingmaster_no AS emr_entry_id, null as code_system, null as code_value, null as text_value, date(service_date) as date_value , null as boolean_value, null as numeric_value, billingmaster_no as emr_id, date(service_date) as effective_date, null as emr_reference FROM billingmaster b WHERE YEAR(service_date) > 1900"
+    },
+    {
         "target": "Entry.005",
         "query": "SELECT 'demographic' AS `source_table`, 005 as entry_id, demographic_no AS `emr_id`, demographic_no AS `emr_patient_id` FROM demographic"
     },
