@@ -1,20 +1,36 @@
 const crypto = require('crypto');
 
-/*
-const cipher = crypto.createCipher('aes256', 'secret_string');
-let encrypted = cipher.update('password', 'utf8', 'hex');
-encrypted += cipher.final('hex');
-console.log('Encrypted password: ', encrypted);
+const algorithm = 'aes-256-ctr';
+const key = process.env.KEY || 'b2df428b9929d3ace7c598bbf4e496b2';
+const inputEncoding = 'utf8';
+const outputEncoding = 'hex';
 
-var iv = new Buffer(crypto.randomBytes(8))
-ivstring = iv.toString('hex');
+function encrypt(text) {
+  const iv = Buffer.from(crypto.randomBytes(16));
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let crypted = cipher.update(text, inputEncoding, outputEncoding);
+  crypted += cipher.final(outputEncoding);
+  return `${iv.toString('hex')}:${crypted.toString()}`;
+}
 
-*/
+function decrypt(text) {
+  const textParts = text.split(':');
 
-var password = 'password';
-const key = crypto.randomBytes(32);
-var iv = new Buffer('');
-const cipher2 = crypto.createCipheriv('AES-256-ECB',key, iv);
-let encrypted2 = cipher2.update(password, 'utf8', 'base64');
-encrypted2 += cipher2.final('base64');
-console.log('Encrypted password: ', encrypted2);
+  // extract the IV from the first half of the value
+  const IV = Buffer.from(textParts.shift(), outputEncoding);
+
+  // extract the encrypted text without the IV
+  const encryptedText = Buffer.from(textParts.join(':'), outputEncoding);
+
+  // decipher the string
+  const decipher = crypto.createDecipheriv(algorithm, key, IV);
+  let decrypted = decipher.update(encryptedText, outputEncoding, inputEncoding);
+  decrypted += decipher.final(inputEncoding);
+  return decrypted.toString();
+}
+
+const enc = encrypt('abc123');
+console.log('encrypted: ', enc);
+
+const text = decrypt(enc);
+console.log('decrypted: ', text);

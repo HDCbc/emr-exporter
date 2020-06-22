@@ -5,7 +5,7 @@ const path = require('path');
 const printf = require('printf');
 const winston = require('winston');
 
-// TODO Document and Clean
+// Standardized timestamp format for logging
 const TIMESTAMP_FORMAT = 'YYYY-MM-DD HH:mm:ss z';
 
 // Extend a winston by making it expand errors when passed in as the
