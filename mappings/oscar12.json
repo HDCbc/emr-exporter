@@ -117,7 +117,7 @@
     },
     {
       "target": "EntryAttribute.003.008",
-	    "query": "SELECT 'provider' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, p.provider_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference, p.* FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
+	    "query": "SELECT 'provider' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, p.provider_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
     },
     {
         "target": "Entry.005",
