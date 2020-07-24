@@ -110,7 +110,7 @@
     },
     {
         "target": "EntryAttribute.003.006",  
-        "query": "SELECT 'billinghistory' AS source_table, 3.006 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' as code_system, null as code_value, null as text_value, null as date_value , null as boolean_value, case when bh.seqNum = '' then null else cast(bh.seqNum as decimal) end as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no WHERE YEAR(service_date) > 1900 and bh.seqNum is not null and bh.seqNum <> ''"
+        "query": "SELECT 'billingmaster' AS source_table, 3.006 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' as code_system, null as code_value, null as text_value, null as date_value , null as boolean_value, case when bh.seqNum = '' then null else cast(bh.seqNum as decimal) end as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no WHERE YEAR(service_date) > 1900 and bh.seqNum is not null and bh.seqNum <> ''"
     },
     {
         "target": "EntryAttribute.003.007",
