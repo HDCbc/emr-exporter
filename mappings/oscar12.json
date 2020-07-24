@@ -106,10 +106,11 @@
     {
         "target": "EntryAttribute.003.005",
         "query": "SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code1 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code1 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900 and coalesce(bm.dx_code1,'') <> '' UNION SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code2 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code2 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900 and coalesce(bm.dx_code2,'') <> '' UNION SELECT 'billingmaster' AS source_table, 3.005 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'ICD9-MSP' as code_system, bm.dx_code3 as code_value, dc.description as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm left join diagnosticcode dc on bm.dx_code3 = dc.diagnostic_code WHERE YEAR(date(bm.service_date)) > 1900 and coalesce(bm.dx_code2,'') <> ''"
+
     },
     {
         "target": "EntryAttribute.003.006",
-        "query": "SELECT 'billinghistory' AS source_table, 3.006 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' as code_system, null as code_value, null as text_value, null as date_value , null as boolean_value, case when bh.seqNum = '' then null else cast(bh.seqNum as decimal) end as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no WHERE YEAR(service_date) > 1900 and bh.seqNum is not null and bh.seqNum <> ''"
+        "query": "SELECT 'billingmaster' AS source_table, 3.006 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' as code_system, null as code_value, null as text_value, null as date_value , null as boolean_value, case when bh.seqNum = '' then null else cast(bh.seqNum as decimal) end as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm JOIN billing_history bh on bm.billingmaster_no = bh.billingmaster_no WHERE YEAR(service_date) > 1900 and bh.seqNum is not null and bh.seqNum <> ''"
     },
     {
         "target": "EntryAttribute.003.007",
@@ -117,7 +118,7 @@
     },
     {
         "target": "EntryAttribute.003.008",
-        "query": "SELECT 'provider' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bm.billingmaster_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
+	"query": "SELECT 'billingmaster' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bm.billingmaster_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
     },
     {
         "target": "Entry.005",
