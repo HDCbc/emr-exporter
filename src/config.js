@@ -48,6 +48,9 @@ function get() {
     },
     source: {
       host: 'localhost',
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
     target: {
       port: 22,
@@ -102,6 +105,7 @@ function validate(config, callback) {
       database: Joi.string(),
       user: Joi.string(),
       password: Joi.string(),
+      ssl: Joi.object(),
     }),
     target: Joi.object().keys({
       host: Joi.string(),
@@ -127,9 +131,8 @@ function validate(config, callback) {
     presence: 'required', // All fields required by default
   };
   // Return result.
-  const result = Joi.validate(config, schema, validateOptions, callback);
-
-  return result;
+  const { error, value } = schema.validate(config, validateOptions);
+  return callback(error, value);
 }
 
 /**
@@ -152,7 +155,7 @@ function load(callback) {
 
     let cleartextPassword;
 
-    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so 
+    // If the value does not start with the word 'ENC:' then the value is in the cleartext, so
     // we need to encrypt it.
     if (!res.source.password.startsWith('ENC:')) {
       const encrypted = password.encrypt(res.source.password, secret);
