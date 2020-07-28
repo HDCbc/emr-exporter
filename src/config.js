@@ -53,6 +53,9 @@ function get() {
       port: 22,
       username: 'exporter',
       path: '/hdc/crypt/uploads',
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   });
 
@@ -109,6 +112,7 @@ function validate(config, callback) {
       username: Joi.string(),
       privatekey: Joi.string(),
       path: Joi.string(),
+      ssl: Joi.object(),
     }),
     logger: Joi.object().keys({
       level: Joi.string().regex(/^(error|warn|info|verbose|debug|silly)$/),
@@ -127,9 +131,8 @@ function validate(config, callback) {
     presence: 'required', // All fields required by default
   };
   // Return result.
-  const result = Joi.validate(config, schema, validateOptions, callback);
-
-  return result;
+  const { error, value } = schema.validate(config, validateOptions);
+  return callback(error, value);
 }
 
 /**
