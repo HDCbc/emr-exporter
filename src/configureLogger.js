@@ -1,13 +1,12 @@
 const _ = require('lodash');
-const chalk = require('chalk');
 const fs = require('fs');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const path = require('path');
 const printf = require('printf');
 const winston = require('winston');
-require('winston-log-and-exit');
 
 // TODO Document and Clean
+const TIMESTAMP_FORMAT = 'YYYY-MM-DD HH:mm:ss z';
 
 // Extend a winston by making it expand errors when passed in as the
 // second argument (the first argument is the log level).
@@ -15,7 +14,7 @@ function expandErrors(currLogger) {
   const originalLogFunc = currLogger.log;
   // const newLogger = Object.assign({}, currLogger);
   function log() {
-    const args = Array.prototype.slice.call(arguments, 0);
+    const args = Array.prototype.slice.call(arguments, 0); // eslint-disable-line
     // TODO This will only work if the 3rd argument (the first is the level) is an Error.
     if (args.length >= 3 && args[2] instanceof Error) {
       const allPropNames = Object.getOwnPropertyNames(args[2]);
@@ -48,47 +47,13 @@ module.exports = ((config) => {
     zippedArchive,
   } = config;
 
-  const createFormatter = (colorEnabled) => {
-    const ctx = new chalk.constructor({ enabled: colorEnabled });
+  const createFormatter = () => winston.format.combine(
+    winston.format.metadata(),
+    winston.format.timestamp({ format: () => moment.tz('America/Vancouver').format(TIMESTAMP_FORMAT) }),
+    winston.format.printf((info) => printf('%s  %-6s %-30s %s', info.timestamp, info.level, info.message, info.metadata && Object.keys(info.metadata).length ? JSON.stringify(info.metadata) : '')),
+  );
 
-    const formatter = (options) => {
-      const time = moment().format('YYYY-MM-DD HH:mm:ss');
-      let lvl = options.level.toUpperCase();
-
-      // Note that we need to manually color the log (rather than just setting colorize) because
-      // we are specifying a custom formatter function.
-      if (lvl === 'ERROR') {
-        lvl = ctx.red(lvl);
-      } else if (lvl === 'WARN') {
-        lvl = ctx.yellow(lvl);
-      } else if (lvl === 'INFO') {
-        lvl = ctx.green(lvl);
-      } else if (lvl === 'VERBOSE') {
-        lvl = ctx.cyan(lvl);
-      } else if (lvl === 'DEBUG') {
-        lvl = ctx.gray(lvl);
-      } else if (lvl === 'SILLY') {
-        lvl = ctx.white(lvl);
-      }
-
-      const message = options.message ? options.message : '';
-
-      // TODO Clean this shit up
-      const obj = (options.meta && Object.keys(options.meta).length) ? options.meta : null;
-      let elapsedSec = '';
-      if (obj && (obj.elapsedSec || obj.elapsedSec === 0)) {
-        elapsedSec = printf('%7.3f sec', obj.elapsedSec);
-        delete obj.elapsedSec;
-      }
-
-      const meta = options.meta && Object.keys(options.meta).length ? ` ${JSON.stringify(options.meta)}` : '';
-      // Note the extra space required because of the color characters.
-      return printf('%s %-17s %-27s %-11s %s', time, lvl, message, elapsedSec, meta);
-    };
-    return formatter;
-  };
-
-  const createFileTransport = (colorEnabled) => {
+  const createFileTransport = () => {
     // TODO - what about recursive directories? // WHAT IF IT FAILS!!!!!!!
 
     // Create the log directory if it does not already exist
@@ -98,7 +63,7 @@ module.exports = ((config) => {
     }
 
     return new winston.transports.File({
-      formatter: createFormatter(colorEnabled),
+      format: createFormatter(),
       filename,
       maxsize,
       maxFiles,
@@ -108,17 +73,16 @@ module.exports = ((config) => {
     });
   };
 
-  const createConsoleTransport = colorEnabled => new (winston.transports.Console)({
+  const createConsoleTransport = () => new (winston.transports.Console)({
     colorize: true,
-    formatter: createFormatter(colorEnabled),
+    format: createFormatter(),
   });
 
-  const consoleTransport = createConsoleTransport(true);
-  const fileTransport = createFileTransport(false);
-  
+  const fileTransport = createFileTransport();
+  const consoleTransport = createConsoleTransport();
+
   winston.configure({
     level,
-
     transports: [
       consoleTransport,
       fileTransport,

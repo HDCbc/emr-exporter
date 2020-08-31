@@ -167,7 +167,7 @@ function run(callback) {
     console.log('#####################################################################');
 
     async.auto({
-      sshDir: cb => makeDir('./ssh', cb),
+      sshDir: (cb) => makeDir('./ssh', cb),
       logDir: ['sshDir', (params, cb) => makeDir('./logs', cb)],
       workingDir: ['logDir', (params, cb) => makeDir('./working', cb)],
       pubKey: ['workingDir', (params, cb) => generateKey(4096, './ssh/id_rsa.pub', './ssh/id_rsa', cb)],
@@ -202,6 +202,7 @@ function run(callback) {
 
       return callback(null);
     });
+    return callback(null);
   });
 }
 
