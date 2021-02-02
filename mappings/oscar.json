@@ -270,7 +270,7 @@
     },
     {
         "target": "EntryAttribute.011.007",
-        "query": "SELECT 'preventions' AS source_table , 11.007 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , NULL AS date_value , IF(p.refused > 0, 1, 0) AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON ( p.id = `dose`.prevention_id AND `dose`.keyval = 'dose' ) WHERE p.deleted = 0 AND YEAR(lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table, 11.007 AS attribute_id, p.id AS emr_entry_id, 'OSCAR' AS code_system, p.refused AS code_value, CASE WHEN p.refused = 0 THEN 'Completed' WHEN p.refused = 1 THEN 'Refused' WHEN p.refused = 2 THEN 'Ineligible' WHEN p.refused = 3 THEN 'Completed externally' END AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, p.id AS emr_id, p.lastUpdateDate AS effective_date, `dose`.id AS emr_reference FROM preventions p INNER JOIN preventionsExt `dose` ON (p.id = `dose`.prevention_id AND `dose`.keyval = 'dose')  WHERE p.deleted = 0 AND YEAR(lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.011.008",
