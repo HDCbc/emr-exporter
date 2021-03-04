@@ -26,7 +26,7 @@ function runExporter() {
     exporter.run(configValues, (errApp) => {
       // If an error occured in the application then exit with an error value.
       if (errApp) {
-        console.error('Unable to load configuration', errConfig); //eslint-disable-line
+        console.error('Application Error', errApp); //eslint-disable-line
         process.exit(2);
       }
       // Otherwise exit successfully.
