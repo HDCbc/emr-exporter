@@ -37,7 +37,7 @@ module.exports = (() => {
       FORCE QUOTE *
       DELIMITER ','
       CSV NULL AS '\\N'
-      ENCODING 'LATIN1' ESCAPE '\\';
+      ESCAPE '\\';
     `;
 
     winston.debug('Postgres Export', exportQuery);
