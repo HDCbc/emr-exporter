@@ -42,7 +42,7 @@
     "nconf": "^0.10.0",
     "node-forge": "^0.9.1",
     "pg": "^8.2.2",
-    "printf": "^0.5.3",
+    "printf": "^0.6.1",
     "progress-stream": "^2.0.0",
     "readline-sync": "^1.4.9",
     "rimraf": "^3.0.2",
