@@ -59,7 +59,6 @@ function get() {
     },
   });
 
-
   // Create the configuration object.
   // Note that we convert the underscore format to a more javascript friendly camel case format.
   const config = {
