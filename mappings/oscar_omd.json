@@ -101,7 +101,7 @@
 	},
     {
         "target": "EntryAttribute.003.004",
-        "query": "SELECT 'billingservice' AS source_table, 3.004 AS attribute_id, bs.billingservice_no AS emr_entry_id, 'OHIP' AS code_system, bs.service_code as code_value, bs.description as text_value, null as date_value, null as boolean_value, null as numeric_value, bs.billingservice_no as emr_id, bs.billingservice_date as effective_date, null as emr_reference FROM billingservice bs JOIN billing_on_cheader1 boc on bs.billingservice_no = boc.id WHERE YEAR(bs.billingservice_date) > 1900"
+        "query": "SELECT 'billingservice' AS source_table, 3.004 AS attribute_id, bs.billingservice_no AS emr_entry_id, boc.pay_program AS code_system, bs.service_code as code_value, bs.description as text_value, null as date_value, null as boolean_value, null as numeric_value, bs.billingservice_no as emr_id, bs.billingservice_date as effective_date, null as emr_reference FROM billingservice bs JOIN billing_on_cheader1 boc on bs.billingservice_no = boc.id WHERE YEAR(bs.billingservice_date) > 1900"
 	},
     {
         "target": "EntryAttribute.003.005",
@@ -117,7 +117,7 @@
     },
     {
         "target": "EntryAttribute.003.008",
-		"query": "SELECT 'billingservice' AS source_table, 3.008 AS attribute_id, bs.billingservice_no AS emr_entry_id, 'OHIP' AS code_system, p.provider_no as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bs.billingservice_no AS emr_id, bs.billingservice_date AS effective_date, NULL AS emr_reference FROM billingservice bs JOIN billing_on_cheader1 boc ON bs.billingservice_no = boc.id JOIN provider p ON boc.provider_no = p.provider_no WHERE YEAR(bs.billingservice_date) > 1900"
+		"query": "SELECT 'billingservice' AS source_table, 3.008 AS attribute_id, bs.billingservice_no AS emr_entry_id, 'OMD' AS code_system, p.provider_no as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bs.billingservice_no AS emr_id, bs.billingservice_date AS effective_date, NULL AS emr_reference FROM billingservice bs JOIN billing_on_cheader1 boc ON bs.billingservice_no = boc.id JOIN provider p ON boc.provider_no = p.provider_no WHERE YEAR(bs.billingservice_date) > 1900"
     },
     {
         "target": "Entry.005",
