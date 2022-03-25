@@ -93,7 +93,7 @@
 	},
     {
         "target": "EntryAttribute.003.001",
-        "query": "SELECT 'billingservice' AS source_table, 3.001 AS attribute_id, boc.id AS emr_entry_id, null as code_system, null as code_value, null as text_value, date(billingservice_date) as date_value , null as boolean_value, null as numeric_value, billingservice_no as emr_id, date(billingservice_date) as effective_date, null as emr_reference FROM billingservice bs JOIN billing_on_cheader1 boc on bs.billingservice_no = boc.id WHERE YEAR(billingservice_date) > 1900"
+        "query": "SELECT 'billingservice' AS source_table, 3.001 AS attribute_id, boc.id AS emr_entry_id, null as code_system, null as code_value, null as text_value, date(billing_date) as date_value , null as boolean_value, null as numeric_value, id as emr_id, date(billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc WHERE YEAR(billing_date) > 1900"
     },
     {
         "target": "EntryAttribute.003.002",
