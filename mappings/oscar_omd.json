@@ -89,7 +89,7 @@
     },
     {
         "target": "EntryState.003",
-        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , boc.timestamp1 )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc WHERE YEAR(boc.billing_date) > 1900"
+        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , boc.billing_date )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc WHERE YEAR(boc.billing_date) > 1900"
 	},
     {
         "target": "EntryAttribute.003.001",
