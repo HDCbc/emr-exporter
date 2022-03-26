@@ -85,11 +85,11 @@
     },
     {
         "target": "Entry.003",
-        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.demographic_no AS emr_patient_id FROM billing_on_cheader1 boc"
+        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.demographic_no AS emr_patient_id FROM billing_on_cheader1 boc WHERE YEAR(boc.billing_date) > 1900"
     },
     {
         "target": "EntryState.003",
-        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , boc.timestamp1 )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc"
+        "query": "SELECT 'billing_on_cheader1' AS source_table, 003 as entry_id, boc.id AS emr_id, boc.status AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , boc.timestamp1 )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc WHERE YEAR(boc.billing_date) > 1900"
 	},
     {
         "target": "EntryAttribute.003.001",
@@ -105,11 +105,11 @@
 	},
     {
         "target": "EntryAttribute.003.005",
-        "query": "SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, bs.billingservice_no as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx,'') <> '' UNION SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx1 as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, boc.id as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx1 = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx1,'') <> '' UNION SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx2 as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, boc.id as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx2 = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx2,'') <> '' "
-    },
+        "query": "SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, boc.id as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx,'') <> '' UNION SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx1 as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, boc.id as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx1 = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx1,'') <> '' UNION SELECT 'billing_on_cheader1' AS source_table, 3.005 AS attribute_id, boc.id AS emr_entry_id, 'ICD9-OMD' as code_system, boi.dx2 as code_value, dc.description as text_value, null as date_value, null as boolean_value, NULL AS numeric_value, boc.id as emr_id, date(boc.billing_date) as effective_date, null as emr_reference FROM billing_on_cheader1 boc JOIN billing_on_item boi ON boc.id = boi.ch1_id LEFT JOIN diagnosticcode dc on boi.dx2 = dc.diagnostic_code WHERE YEAR(date(boc.billing_date)) > 1900 and coalesce(boi.dx2,'') <> ''"
+	},
     {
         "target": "EntryAttribute.003.008",
-		"query": "SELECT 'billing_on_cheader1' AS source_table, 3.008 AS attribute_id, boc.id AS emr_entry_id, 'OMD' AS code_system, p.provider_no as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, boc.idAS emr_id, boc.billing_date AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc JOIN provider p ON boc.provider_no = p.provider_no WHERE YEAR(boc.billing_date) > 1900"
+		"query": "SELECT 'billing_on_cheader1' AS source_table, 3.008 AS attribute_id, boc.id AS emr_entry_id, 'OMD' AS code_system, p.provider_no as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, boc.id AS emr_id, boc.billing_date AS effective_date, NULL AS emr_reference FROM billing_on_cheader1 boc JOIN provider p ON boc.provider_no = p.provider_no WHERE YEAR(boc.billing_date) > 1900"
     },
     {
         "target": "Entry.005",
