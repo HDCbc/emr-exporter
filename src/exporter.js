@@ -144,43 +144,6 @@ function deleteFile(filepath, callback) {
 }
 
 /**
- * Exports the data out of the source database by running the array of export functions in parallel.
- *
- * @param tasks - The array of functions to run to perform the export.
- * @param parallelLimit - The number of tasks to run in parallel.
- * @param callback - A callback to call once the function is complete.
- * @param callback.err - If failed, the error.
- */
-function exportData(tasks, parallelLimit, callback) {
-  const start = Date.now();
-  logger.info('Export Data Started', { parallelLimit, tasks: tasks.length });
-
-  async.parallelLimit(tasks, parallelLimit, (err, res) => {
-    const elapsedSec = (Date.now() - start) / 1000;
-    if (err) {
-      logger.error('Export Data Failure', err);
-      return callback(err);
-    }
-
-    // Retrieve the sum of rows/size/time for all of the tasks that were run.
-    const resArray = _.toArray(res);
-    const rows = _.sumBy(resArray, (t) => (t.rows ? t.rows : 0));
-    const serialMs = _.sumBy(resArray, (t) => (t.ms ? t.ms : 0));
-    const serialSec = serialMs / 1000;
-    const sizeBytes = _.sumBy(resArray, (t) => (t.bytes ? t.bytes : 0));
-    const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
-
-    logger.info('Export Data Success', {
-      rows,
-      elapsedSec,
-      serialSec,
-      sizeMB,
-    });
-    return callback(null);
-  });
-}
-
-/**
  * Writes a file to the filesystem.
  *
  * @param filepath - The path of the file.
@@ -308,6 +271,44 @@ function loadMappingFile(mappingName, callback) {
 }
 
 /**
+ * Load the content of the preprocessor file by name. Mapping files are located in the
+ * /project/preprocessors directory. If the file does not exist, then an empty array
+ * will be returned.
+ *
+ * For example to load the file /project/mapping/mois.json you would pass in "mois" as the name.
+ *
+ * @param preprocessorName - The name of the preprocessor to load.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ * @param callback.res - If success, the string content of the mapping file, or "[]" if the file does not exist.
+ */
+function loadPreprocessorFile(preprocessorName, callback) {
+  const start = Date.now();
+
+  // The preprocessor files are json files that should be located in /project/preprocessors.
+  // This directory should be included as in pkg.assets within package.json so they can be read
+  // once the source code is packaged into an executable.
+  const preprocessorPath = path.join(__dirname, '../preprocessors', `${preprocessorName}.json`);
+
+  logger.info('Load Preprocessor Started', { preprocessorName, preprocessorPath });
+
+  if (!fs.existsSync(preprocessorPath)) {
+    logger.info('Load Preprocessor Skipped (Not Found)');
+    return callback(null, '[]');
+  }
+
+  fs.readFile(preprocessorPath, (err, res) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Load Preprocessor Failure', err);
+      return callback(err);
+    }
+    logger.info('Load Preprocessor Success', { elapsedSec });
+    return callback(null, res.toString());
+  });
+}
+
+/**
  * Parse json content into a javascript object.
  * Note this is still a synchronous function but provides a callback style.
  *
@@ -328,7 +329,7 @@ function parseJSON(content, callback) {
 }
 
 /**
- * Populate a list of tasks (functions that can be called by async) based on the mapping.
+ * Populate a list of mapping tasks (functions that can be called by async) based on the mapping.
  *
  * @param mapping - The mapping object to load the tasks from.
  * @param db - The database object to eventually run the query against.
@@ -337,13 +338,13 @@ function parseJSON(content, callback) {
  * @param callback.err - If failed, the error. No tasks is considered an error.
  * @param callback.res - If success, an array of functions, one per mapping entry.
  */
-function populateTasks(mapping, db, exportDir, callback) {
+function populateMappingTasks(mapping, db, exportDir, callback) {
   const start = Date.now();
-  logger.info('Populating Tasks Started');
+  logger.info('Populating Mapping Tasks Started');
 
   const tasks = _.map(mapping, (val, index) => {
     const filepath = path.join(exportDir, `${val.target}.${index}.csv`);
-    logger.debug('Task Created', { target: val.target, filepath });
+    logger.debug('Mapping Task Created', { target: val.target, filepath });
 
     return async.apply(exportQueryToCSV, db, filepath, val.query);
   });
@@ -352,10 +353,35 @@ function populateTasks(mapping, db, exportDir, callback) {
 
   if (tasks.length === 0) {
     const err = new Error('No tasks found');
-    logger.error('Populating Tasks Failure', err);
+    logger.error('Populating Mapping Tasks Failure', err);
     return callback(err);
   }
-  logger.info('Populating Tasks Success', { elapsedSec, tasks: tasks.length });
+  logger.info('Populating Mapping Tasks Success', { elapsedSec, tasks: tasks.length });
+  return callback(null, tasks);
+}
+
+/**
+ * Populate a list of preprocessor tasks (functions that can be called by async) based on the preprocessors.
+ *
+ * @param preprocessors - The array of preprocessor sql statements to run.
+ * @param db - The database object to eventually run the query against.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error. No tasks is NOT considered an error.
+ * @param callback.res - If success, an array of functions, one per preprocessor entry.
+ */
+function populatePreprocessorTasks(preprocessors, db, callback) {
+  const start = Date.now();
+  logger.info('Populating Preprocessor Tasks Started');
+
+  const tasks = _.map(preprocessors, (sql) => {
+    logger.debug('Preprocessor Task Created', { sql });
+
+    return async.apply(runQuery, db, sql);
+  });
+
+  const elapsedSec = (Date.now() - start) / 1000;
+
+  logger.info('Populating Preprocessor Tasks Success', { elapsedSec, tasks: tasks.length });
   return callback(null, tasks);
 }
 
@@ -381,6 +407,110 @@ function readFile(filepath, callback) {
     return callback(null, res.toString());
   });
 }
+
+/**
+ * Exports the data out of the source database by running the array of export functions in parallel.
+ *
+ * @param tasks - The array of functions to run to perform the export.
+ * @param parallelLimit - The number of tasks to run in parallel.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ */
+function runMappingTasks(tasks, parallelLimit, callback) {
+  const start = Date.now();
+  logger.info('Export Data Started', { parallelLimit, tasks: tasks.length });
+
+  async.parallelLimit(tasks, parallelLimit, (err, res) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Export Data Failure', err);
+      return callback(err);
+    }
+
+    // Retrieve the sum of rows/size/time for all of the tasks that were run.
+    const resArray = _.toArray(res);
+    const rows = _.sumBy(resArray, (t) => (t.rows ? t.rows : 0));
+    const serialMs = _.sumBy(resArray, (t) => (t.ms ? t.ms : 0));
+    const serialSec = serialMs / 1000;
+    const sizeBytes = _.sumBy(resArray, (t) => (t.bytes ? t.bytes : 0));
+    const sizeMB = (sizeBytes / 1024 / 1024).toFixed(2);
+
+    logger.info('Export Data Success', {
+      rows,
+      elapsedSec,
+      serialSec,
+      sizeMB,
+    });
+    return callback(null);
+  });
+}
+
+/**
+ * Run the preprocessor tasks against the source database.
+ *
+ * @param tasks - The array of functions to run to perform the preprocessing.
+ * @param parallelLimit - The number of tasks to run in parallel.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ */
+function runPreprocessorTasks(tasks, parallelLimit, callback) {
+  const start = Date.now();
+  logger.info('Preprocessing Started', { parallelLimit, tasks: tasks.length });
+
+  async.parallelLimit(tasks, parallelLimit, (err, res) => {
+    const elapsedSec = (Date.now() - start) / 1000;
+    if (err) {
+      logger.error('Preprocessing Failure', err);
+      return callback(err);
+    }
+
+    // Retrieve the sum of rows/size/time for all of the tasks that were run.
+    const resArray = _.toArray(res);
+    const rowCount = _.sumBy(resArray, (t) => (t.rowCount ? t.rowCount : 0));
+    const serialMs = _.sumBy(resArray, (t) => (t.ms ? t.ms : 0));
+    const serialSec = serialMs / 1000;
+
+    logger.info('Preprocessing Success', {
+      rowCount,
+      elapsedSec,
+      serialSec,
+    });
+    return callback(null);
+  });
+}
+
+/**
+ * Run a SQL query.
+ *
+ * @param db - The database object to run the query against.
+ * @param sql - The SQL query to run.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ * @param callback.res - If success, an object containing summary information.
+ * @param callback.res.ms - The time in ms to perform the query.
+ * @param callback.res.rowCount - The number of row inserted/updated/deleted.
+ */
+const runQuery = (db, sql, callback) => {
+  const start = Date.now();
+  logger.debug('Run Query Started', { sql });
+
+  db.query({ q: sql }, (err, res) => {
+    const elapsedMs = (Date.now() - start);
+    const elapsedSec = elapsedMs / 1000;
+    
+    if (err) {
+      logger.error('Run Query Failure', err);
+      return callback(err);
+    }
+    
+    const rowCount = res.rowCount || res.affectedRows;
+    logger.verbose('Run Query Success', {
+      elapsedSec,
+      rowCount,
+    });
+    return callback(null, { ms: elapsedMs, rowCount });
+  });
+};
 
 /**
  * Transfer a local file to a remote server using scp.
@@ -585,21 +715,40 @@ function run(options, callback) {
     exportDirMode: ['exportDir', (res, cb) => {
       changePermissions(tempExportDir, workingDirMode, cb);
     }],
+
+    // Load the preprocessor file content.
+    preprocessor: ['exportDirMode', (res, cb) => {
+      loadPreprocessorFile(mapping, cb);
+    }],
+    // Parse the preprocessor file into a javascript object.
+    preprocessorJson: ['preprocessor', (res, cb) => {
+      parseJSON(res.preprocessor, cb);
+    }],
+    // Populate tasks from the preprocessor/mapping file.
+    preprocessorTasks: ['preprocessorJson', (res, cb) => {
+      populatePreprocessorTasks(res.preprocessorJson, res.database, cb);
+    }],
+
     // Load the mapping file content.
-    mapping: ['exportDirMode', (res, cb) => {
+    mapping: ['preprocessorTasks', (res, cb) => {
       loadMappingFile(mapping, cb);
     }],
     // Parse the mapping file into a javascript object.
-    json: ['mapping', (res, cb) => {
+    mappingJson: ['mapping', (res, cb) => {
       parseJSON(res.mapping, cb);
     }],
-    // Populate tasks from the mapping file.
-    tasks: ['json', (res, cb) => {
-      populateTasks(res.json, res.database, tempExportDir, cb);
+    // Populate tasks from the preprocessor/mapping file.
+    mappingTasks: ['mappingJson', (res, cb) => {
+      populateMappingTasks(res.mappingJson, res.database, tempExportDir, cb);
+    }],
+
+    // Run the preprocessor tasks (not in parallel).
+    preprocessed: ['mappingTasks', (res, cb) => {
+      runPreprocessorTasks(res.preprocessorTasks, 1, cb);
     }],
     // Run the tasks (eg export to csv).
-    export: ['tasks', (res, cb) => {
-      exportData(res.tasks, parallelExtracts, cb);
+    export: ['preprocessed', (res, cb) => {
+      runMappingTasks(res.mappingTasks, parallelExtracts, cb);
     }],
     // Also export the mapping file.
     exportMapping: ['export', (res, cb) => {

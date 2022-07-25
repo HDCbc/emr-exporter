@@ -59,6 +59,7 @@
   "pkg": {
     "assets": [
       "mappings/*.json",
+      "preprocessors/*.json",
       "examples/*.env"
     ]
   },
