@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Don't ignore .gitignore and oscar.json files
+!.gitignore
+!oscar.json
+!oscar12.json
+!oscar_omd.json
