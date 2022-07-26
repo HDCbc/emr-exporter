@@ -46,7 +46,7 @@
     "progress-stream": "^2.0.0",
     "readline-sync": "^1.4.9",
     "rimraf": "^3.0.2",
-    "ssh2": "^0.8.9",
+    "ssh2": "^1.4.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
