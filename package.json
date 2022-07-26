@@ -30,7 +30,7 @@
   "homepage": "https://github.com/HDCbc/emr-exporter#readme",
   "dependencies": {
     "archiver": "^4.0.0",
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
     "ip": "^1.1.5",
