@@ -59,7 +59,6 @@ function get() {
     },
   });
 
-
   // Create the configuration object.
   // Note that we convert the underscore format to a more javascript friendly camel case format.
   const config = {
@@ -165,7 +164,6 @@ function load(callback) {
       const env = fs.readFileSync(envPath, { encoding: 'utf8' });
 
       // Replace the database password with the encrypted value.
-      // const newEnv = env.replace(res.source.password, `ENC:${encrypted}`);
       const newEnv = env.replace(/(source_password(?:\s*)=(?:\s*))(.*)/g, `$1ENC:${encrypted}`);
 
       // Write the new .env file content

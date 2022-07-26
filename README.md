@@ -38,6 +38,12 @@ On the EMR Server:
 | `npm run depcheck` | Check the project for dependency issues.                          |
 | `npm run seccheck` | Check the project for known security vulnerabilities.             |
 
+## Development
+Additionally, a secret.js file needs to be added the the src folder that contains a 32 character string
+```javascript
+module.exports = '12345678123456781234567812345678';
+```
+
 ## License
 
 GNU General Public License v3.0
