@@ -193,7 +193,6 @@ const exportQueryToCSV = (db, filepath, sql, callback) => {
       return callback(err);
     }
 
-    // TODO - This is not ideal. Should really be using the async version.
     const sizeBytes = fs.statSync(filepath).size;
     const sizeMB = (sizeBytes / 1024 / 1024).toFixed(3);
     const basename = path.basename(filepath);
@@ -280,7 +279,8 @@ function loadMappingFile(mappingName, callback) {
  * @param preprocessorName - The name of the preprocessor to load.
  * @param callback - A callback to call once the function is complete.
  * @param callback.err - If failed, the error.
- * @param callback.res - If success, the string content of the mapping file, or "[]" if the file does not exist.
+ * @param callback.res - If success, the string content of the mapping file, or "[]"
+ *  if the file does not exist.
  */
 function loadPreprocessorFile(preprocessorName, callback) {
   const start = Date.now();
@@ -297,7 +297,7 @@ function loadPreprocessorFile(preprocessorName, callback) {
     return callback(null, '[]');
   }
 
-  fs.readFile(preprocessorPath, (err, res) => {
+  return fs.readFile(preprocessorPath, (err, res) => {
     const elapsedSec = (Date.now() - start) / 1000;
     if (err) {
       logger.error('Load Preprocessor Failure', err);
@@ -361,7 +361,41 @@ function populateMappingTasks(mapping, db, exportDir, callback) {
 }
 
 /**
- * Populate a list of preprocessor tasks (functions that can be called by async) based on the preprocessors.
+ * Run a SQL query.
+ *
+ * @param db - The database object to run the query against.
+ * @param sql - The SQL query to run.
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ * @param callback.res - If success, an object containing summary information.
+ * @param callback.res.ms - The time in ms to perform the query.
+ * @param callback.res.rowCount - The number of row inserted/updated/deleted.
+ */
+const runQuery = (db, sql, callback) => {
+  const start = Date.now();
+  logger.debug('Run Query Started', { sql });
+
+  db.query({ q: sql }, (err, res) => {
+    const elapsedMs = (Date.now() - start);
+    const elapsedSec = elapsedMs / 1000;
+
+    if (err) {
+      logger.error('Run Query Failure', err);
+      return callback(err);
+    }
+
+    const rowCount = res.rowCount || res.affectedRows;
+    logger.verbose('Run Query Success', {
+      elapsedSec,
+      rowCount,
+    });
+    return callback(null, { ms: elapsedMs, rowCount });
+  });
+};
+
+/**
+ * Populate a list of preprocessor tasks (functions that can be called by async) based on the
+ * preprocessors.
  *
  * @param preprocessors - The array of preprocessor sql statements to run.
  * @param db - The database object to eventually run the query against.
@@ -478,39 +512,6 @@ function runPreprocessorTasks(tasks, parallelLimit, callback) {
     return callback(null);
   });
 }
-
-/**
- * Run a SQL query.
- *
- * @param db - The database object to run the query against.
- * @param sql - The SQL query to run.
- * @param callback - A callback to call once the function is complete.
- * @param callback.err - If failed, the error.
- * @param callback.res - If success, an object containing summary information.
- * @param callback.res.ms - The time in ms to perform the query.
- * @param callback.res.rowCount - The number of row inserted/updated/deleted.
- */
-const runQuery = (db, sql, callback) => {
-  const start = Date.now();
-  logger.debug('Run Query Started', { sql });
-
-  db.query({ q: sql }, (err, res) => {
-    const elapsedMs = (Date.now() - start);
-    const elapsedSec = elapsedMs / 1000;
-    
-    if (err) {
-      logger.error('Run Query Failure', err);
-      return callback(err);
-    }
-    
-    const rowCount = res.rowCount || res.affectedRows;
-    logger.verbose('Run Query Success', {
-      elapsedSec,
-      rowCount,
-    });
-    return callback(null, { ms: elapsedMs, rowCount });
-  });
-};
 
 /**
  * Transfer a local file to a remote server using scp.
