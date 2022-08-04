@@ -1,6 +1,7 @@
 const pg = require('pg');
 const winston = require('winston');
-
+const copyTo = require('pg-copy-streams').to;
+const fs = require('fs');
 /**
  * This module handles all interactions with the target database.
  */
@@ -29,11 +30,9 @@ module.exports = (() => {
    * @param callback.res.rows - If success, the number of rows that were exported.
    */
   const exportData = (selectQuery, exportPath, callback) => {
-    const escapedExportPath = exportPath.split('\\').join('\\\\');
-
     const exportQuery = `
       COPY (${selectQuery})
-      TO '${escapedExportPath}'
+      TO STDOUT
       FORCE QUOTE *
       DELIMITER ','
       CSV NULL AS '\\N'
@@ -42,11 +41,35 @@ module.exports = (() => {
 
     winston.debug('Postgres Export', exportQuery);
 
-    pool.query(exportQuery, (err, res) => {
+    return pool.connect((err, client, done) => {
       if (err) {
         return callback(err);
       }
-      return callback(err, { rows: res.rowCount });
+      let lineCount = 0;
+
+      const fileStream = fs.createWriteStream(exportPath);
+      const stream = client.query(copyTo(exportQuery));
+
+      stream.pipe(fileStream);
+
+      stream.on('data', (buffer) => {
+        let idx = -1;
+        lineCount -= 1; // Because the loop will run once for idx=-1
+        do {
+          idx = buffer.indexOf(10, idx + 1);
+          lineCount += 1;
+        } while (idx !== -1);
+      });
+
+      stream.on('error', (streamErr) => {
+        done();
+        return callback(streamErr);
+      });
+
+      return stream.on('end', () => {
+        done();
+        return callback(null, { rows: lineCount });
+      });
     });
   };
 
