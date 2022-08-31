@@ -37,7 +37,7 @@
     "joi": "^14.3.0",
     "lodash": "^4.17.4",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
+    "moment-timezone": "^0.5.35",
     "mysql": "^2.15.0",
     "nconf": "^0.10.0",
     "node-forge": "^0.10.0",
