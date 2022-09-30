@@ -353,7 +353,7 @@
     },
     {
         "target": "EntryAttribute.012.015",
-        "query": "SELECT 'drugs' AS source_table , 12.014 AS attribute_id , d.drugid AS emr_entry_id , 'ANSI x3.50-1986' AS code_system , d.unit AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE (YEAR(written_date) > 1900 OR YEAR(create_date) > 1900)"
+        "query": "SELECT 'drugs' AS source_table , 12.015 AS attribute_id , d.drugid AS emr_entry_id , 'ANSI x3.50-1986' AS code_system , d.unit AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , d.drugid AS emr_id , CAST(Coalesce(CASE WHEN written_date = '0000-00-00' THEN NULL ELSE written_date END, create_date) as date) AS effective_date , NULL AS emr_reference FROM drugs d WHERE (YEAR(written_date) > 1900 OR YEAR(create_date) > 1900)"
     },
     {
         "target": "EntryAttribute.012.016",
