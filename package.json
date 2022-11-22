@@ -9,7 +9,7 @@
     "depcheck": "npx depcheck",
     "stylecheck": "eslint **/*.js",
     "seccheck": "nsp check",
-    "build": "pkg . --out-path ./build/",
+    "build": "pkg . -t node12-win,node12-linux --out-path ./build/",
     "start": "node index.js",
     "clean": "rm -rf ./build",
     "check": "npm audit && npm run depcheck && npm outdated && npm run stylecheck"
