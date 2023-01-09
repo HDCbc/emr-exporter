@@ -670,6 +670,10 @@ function waitForConnection(db, times, interval, callback) {
  *
  */
 function run(options, callback) {
+  const message = 'EMR Exporter temporarily disabled.';
+  logger.error(message);
+  throw new Error(message);
+
   const start = Date.now();
 
   logger.info(_.repeat('=', 160));
