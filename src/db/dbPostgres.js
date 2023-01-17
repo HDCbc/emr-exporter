@@ -48,27 +48,36 @@ module.exports = (() => {
       let lineCount = 0;
 
       const fileStream = fs.createWriteStream(exportPath);
-      const stream = client.query(copyTo(exportQuery));
 
-      stream.pipe(fileStream);
+      fileStream.on('open', () => {
+        const stream = client.query(copyTo(exportQuery));
 
-      stream.on('data', (buffer) => {
-        let idx = -1;
-        lineCount -= 1; // Because the loop will run once for idx=-1
-        do {
-          idx = buffer.indexOf(10, idx + 1);
-          lineCount += 1;
-        } while (idx !== -1);
+        stream.pipe(fileStream);
+
+        // Count the newlines so we can return a lineCount
+        stream.on('data', (buffer) => {
+          let idx = -1;
+          lineCount -= 1; // Because the loop will run once for idx=-1
+          do {
+            idx = buffer.indexOf(10, idx + 1);
+            lineCount += 1;
+          } while (idx !== -1);
+        });
+
+        stream.on('error', (streamErr) => {
+          done();
+          return callback(streamErr);
+        });
+
+        return stream.on('end', () => {
+          done();
+          return callback(null, { rows: lineCount });
+        });
       });
 
-      stream.on('error', (streamErr) => {
+      fileStream.on('error', (fileStreamErr) => {
         done();
-        return callback(streamErr);
-      });
-
-      return stream.on('end', () => {
-        done();
-        return callback(null, { rows: lineCount });
+        return callback(fileStreamErr);
       });
     });
   };
