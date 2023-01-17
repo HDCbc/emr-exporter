@@ -23,6 +23,9 @@ function get() {
   // The following override have the highest priority.
   nconf.overrides({
     compressFormat: 'zip',
+    // Note that changing this format will mean that the next time it runs, it wont delete
+    // orphaned directories named in the previous format.
+    // Also see note in checkOrphanedExportDirectory regarding underscores.
     dateFormat: 'YYYY_MM_DD_HH_mm_ss',
     workingDirMode: '0770',
   });

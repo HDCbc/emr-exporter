@@ -143,6 +143,99 @@ function deleteFile(filepath, callback) {
   });
 }
 
+function checkOrphanedExportDirectory(dirPath, dateFormat) {
+
+  // The idea is that we transform a format like YYYY_MM_DD_hh_mm_ss into a regex like
+  // \d\d\d\d_\d\d_\d\d_\d\d_\d\d_\d\d. Obviously this will not work if we stop using underscores
+  // or make other various changes. However, it is more important that we don't delete the wrong
+  // directories, rather than make this flexible for a configuration value that is unlikely to
+  // change.
+  const regex = new RegExp(`^${dateFormat.replace(/[^_]/g, '\\d')}$`);
+
+  const knownFile = `Clinic.0.csv`;
+  const knownFilePath = path.join(dirPath, knownFile);
+  const dirName = path.basename(dirPath);
+
+  try {
+    if (!fs.lstatSync(dirPath).isDirectory()) {
+      return { isDirectory: false };
+    }
+  } catch (err) {
+    return { msg: `Unable to run lstatSync on '${dirPath}'`, err };
+  }
+
+  if (!regex.test(dirName)) {
+    return { isDirectory: true, matchesRegex: false };
+  }
+
+  try {
+    if (!fs.existsSync(knownFilePath)) {
+      return { isDirectory: true, matchesRegex: true, containsKnownFile: false };
+    }
+  } catch (err) {
+    return { msg: `Unable to run existsSync on '${knownFilePath}'`, err };
+  }
+
+  return { isDirectory: true, matchesRegex: true, containsKnownFile: true };
+}
+
+/**
+ * Delete all orphaned temporary export directories within the specified
+ * parent directory.
+ *
+ * @param dir - The path to the parent directory.
+ * @param dateFormat - The expected format of the subdirectory name (eg YYYY_MM_DD_HH_mm_ss)
+ * @param callback - A callback to call once the function is complete.
+ * @param callback.err - If failed, the error.
+ */
+function deleteOrphanedWorking(dir, dateFormat, callback) {
+  const subdirectories = fs.readdirSync(dir);
+
+  logger.info('Delete Orphan Working Started', { dir, files: subdirectories.length });
+
+  let failed = false;
+
+  for (let i = 0; i < subdirectories.length; i += 1) {
+    const subdirectoryName = subdirectories[i];
+    const subdirectoryPath = path.join(dir, subdirectoryName);
+
+    const check = checkOrphanedExportDirectory(subdirectoryPath, dateFormat);
+    const { isDirectory, matchesRegex, containsKnownFile, err } = check;
+    const canDelete = isDirectory && matchesRegex && containsKnownFile && !err;
+
+    if (err) {
+      // Mark as failed, but try the rest of the directories.
+      failed = true;
+      logger.error('Orphan Directory Check Failed', { i, dir: subdirectoryPath, ...check });
+      logger.error('Orphan Directory Check Error', err);
+      continue;
+    }
+
+    if (!canDelete) {
+      logger.warn('Orphan Directory Skipped', { i, dir: subdirectoryPath, ...check });
+      continue;
+    }
+
+    // Note we don't use the deleteDirectory function because it is asynchronous and we need a
+    // synchronous version when we are working with a for loop. This would be much easier if we
+    // converted this project to async/await style.
+    try {
+      rimraf.sync(subdirectoryPath);
+      logger.info('Orphan Directory Deleted', { i, dir: subdirectoryPath });
+    } catch (err) {
+      logger.error('Orphan Directory Delete Failed', { i, dir: subdirectoryPath });
+      logger.error('Orphan Directory Delete Error', err);
+      failed = true;
+    }
+  }
+
+  if (failed) {
+    return callback(new Error('At least one orphan directory failed check/delete'));
+  }
+
+  return callback(null);
+}
+
 /**
  * Writes a file to the filesystem.
  *
@@ -293,9 +386,9 @@ function loadPreprocessorFile(preprocessorName, callback) {
   logger.info('Load Preprocessor Started', { preprocessorName, preprocessorPath });
 
   // A preprocessor for MOIS should never be used. If you were run a preprocessor (eg updates)
-  // and the EMR Exporter is being run within the Brigth Health/MOIS side of the infrastructure, 
-  // you could actually update their live production MOIS database. This assumes that they are not 
-  // blocking this action by setting up their EMR Exporter Postgres user as a readonly role, but we 
+  // and the EMR Exporter is being run within the Brigth Health/MOIS side of the infrastructure,
+  // you could actually update their live production MOIS database. This assumes that they are not
+  // blocking this action by setting up their EMR Exporter Postgres user as a readonly role, but we
   // should avoid id.
   if (preprocessorName.toLowerCase() === 'mois') {
     logger.info('Load Preprocessor Skipped (MOIS)');
@@ -670,9 +763,9 @@ function waitForConnection(db, times, interval, callback) {
  *
  */
 function run(options, callback) {
-  const message = 'EMR Exporter temporarily disabled.';
+  const message = 'XX EMR Exporter temporarily disabled.';
   logger.error(message);
-  throw new Error(message);
+  return callback(new Error(message));
 
   const start = Date.now();
 
@@ -694,8 +787,11 @@ function run(options, callback) {
   } = options;
 
   const timeString = moment().format(dateFormat);
-  const tempExportDir = path.join(path.dirname(process.execPath), workingDir, timeString);
-  const exportFile = path.join(path.dirname(process.execPath), workingDir, `${timeString}.${compressFormat}`);
+
+  const parentExportDir = path.join(path.dirname(process.execPath), workingDir);
+  const tempExportDir = path.join(parentExportDir, timeString);
+  const exportFile = path.join(parentExportDir, `${timeString}.${compressFormat}`);
+
   // Note that we hardcode the path to posix (eg linux remote endpoint)
   const remoteFile = path.posix.join(target.path, path.basename(exportFile));
 
@@ -716,8 +812,14 @@ function run(options, callback) {
   });
 
   return async.auto({
+    // Delete any previously orphaned temporary export directories.
+    deleteOrphanedExportDir: async.apply(deleteOrphanedWorking, parentExportDir, dateFormat),
+
     // Initialize the database configuration
-    database: async.apply(initConnection, source),
+    database: ['deleteOrphanedExportDir', (res, cb) => {
+      initConnection(source, cb);
+    }],
+
     // Wait for a database connection.
     wait: ['database', (res, cb) => {
       waitForConnection(res.database, connectionAttempts, connectionInterval, cb);
