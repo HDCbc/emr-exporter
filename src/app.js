@@ -22,15 +22,22 @@ function runExporter() {
 
     configureLogger(configValues.logger);
 
+    const logger = require('winston');
+
     // Run the application.
     exporter.run(configValues, (errApp) => {
+      var exitCode;
       // If an error occured in the application then exit with an error value.
       if (errApp) {
-        console.error('Application Error', errApp); //eslint-disable-line
-        process.exit(2);
-      }
+        logger.error('Application Error', errApp); //eslint-disable-line
+        exitCode = 2;
       // Otherwise exit successfully.
-      process.exit(0);
+      } else {
+        exitCode = 0;
+      }
+
+      logger.info('Application Exiting', { exitCode })
+      process.exitCode = exitCode;
     });
   });
 }
