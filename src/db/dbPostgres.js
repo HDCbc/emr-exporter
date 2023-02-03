@@ -92,7 +92,17 @@ module.exports = (() => {
     });
   };
 
+  const cleanup = (callback) => {
+    winston.verbose('db.cleanup()');
+    if (pool) {
+      pool.end(callback);
+    } else {
+      callback(null);
+    }
+  };
+
   return {
+    cleanup,
     init,
     exportData,
     query,

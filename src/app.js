@@ -38,6 +38,11 @@ function runExporter() {
 
       logger.info('Application Exiting', { exitCode })
       process.exitCode = exitCode;
+
+      // Force the application to exit after giving it a few seconds to flush logs etc.
+      setTimeout(function () {
+        process.exit(exitCode);
+      }, 5000);
     });
   });
 }

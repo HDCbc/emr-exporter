@@ -807,13 +807,18 @@ function run(options, callback) {
     logger.verbose(`-${key}`, { value: logOptions[key] });
   });
 
+  var db = null;
+
   return async.auto({
     // Delete any previously orphaned temporary export directories.
     deleteOrphanedExportDir: async.apply(deleteOrphanedWorking, parentExportDir, dateFormat),
 
     // Initialize the database configuration
     database: ['deleteOrphanedExportDir', (res, cb) => {
-      initConnection(source, cb);
+      initConnection(source, (err, conn) => {
+        db = conn; // Save this outside of the async function
+        cb(err, conn);
+      });
     }],
 
     // Wait for a database connection.
@@ -880,6 +885,13 @@ function run(options, callback) {
       transferFile(exportFile, res.compress.sizeBytes, target, remoteFile, res.privatekey, cb);
     }],
   }, (errRun, res) => {
+
+    // Silently close the database connection.
+    if (db) {
+      logger.info('Closing Database Connection');
+      db.cleanup();
+    }
+
     // The deletion of the files and directories need to happen no matter what.
 
     // Delete the export directory containing the csv files.
