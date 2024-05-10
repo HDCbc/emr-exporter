@@ -69,15 +69,15 @@ module.exports = (() => {
           return callback(streamErr);
         });
 
-        return stream.on('end', () => {
+        fileStream.on('error', (fileStreamErr) => {
           done();
-          return callback(null, { rows: lineCount });
+          return callback(fileStreamErr);
         });
       });
 
-      fileStream.on('error', (fileStreamErr) => {
+      fileStream.on('close', () => {
         done();
-        return callback(fileStreamErr);
+        return callback(null, { rows: lineCount });
       });
     });
   };
