@@ -17,7 +17,7 @@
     "lint": "eslint *.js src",
     "prettier": "prettier --check src",
     "knip": "knip",
-    "pre-commit": "npm run prettier && npm run lint && npm run knip"
+    "pre-commit": "npm audit --audit-level=moderate && npm run prettier && npm run lint && npm run knip"
   },
   "repository": {
     "type": "git",
