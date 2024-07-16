@@ -30,7 +30,7 @@ function decrypt(encrypted, secret) {
   const encryptedText = textParts[1];
   const decipher = crypto.createDecipheriv(algorithm, secret, iv);
   const decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  return (decrypted + decipher.final('utf8'));
+  return decrypted + decipher.final('utf8');
 }
 
 module.exports = {

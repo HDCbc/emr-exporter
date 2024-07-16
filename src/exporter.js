@@ -147,7 +147,6 @@ function deleteFile(filepath, callback) {
 }
 
 function checkOrphanedExportDirectory(dirPath, dateFormat) {
-
   // The idea is that we transform a format like YYYY_MM_DD_hh_mm_ss into a regex like
   // \d\d\d\d_\d\d_\d\d_\d\d_\d\d_\d\d. Obviously this will not work if we stop using underscores
   // or make other various changes. However, it is more important that we don't delete the wrong
@@ -173,7 +172,11 @@ function checkOrphanedExportDirectory(dirPath, dateFormat) {
 
   try {
     if (!fs.existsSync(knownFilePath)) {
-      return { isDirectory: true, matchesRegex: true, containsKnownFile: false };
+      return {
+        isDirectory: true,
+        matchesRegex: true,
+        containsKnownFile: false,
+      };
     }
   } catch (err) {
     return { msg: `Unable to run existsSync on '${knownFilePath}'`, err };
@@ -194,7 +197,10 @@ function checkOrphanedExportDirectory(dirPath, dateFormat) {
 function deleteOrphanedWorking(dir, dateFormat, callback) {
   const subdirectories = fs.readdirSync(dir);
 
-  logger.info('Delete Orphan Working Started', { dir, files: subdirectories.length });
+  logger.info('Delete Orphan Working Started', {
+    dir,
+    files: subdirectories.length,
+  });
 
   let failed = false;
 
@@ -209,13 +215,21 @@ function deleteOrphanedWorking(dir, dateFormat, callback) {
     if (err) {
       // Mark as failed, but try the rest of the directories.
       failed = true;
-      logger.error('Orphan Directory Check Failed', { i, dir: subdirectoryPath, ...check });
+      logger.error('Orphan Directory Check Failed', {
+        i,
+        dir: subdirectoryPath,
+        ...check,
+      });
       logger.error('Orphan Directory Check Error', err);
       continue;
     }
 
     if (!canDelete) {
-      logger.warn('Orphan Directory Skipped', { i, dir: subdirectoryPath, ...check });
+      logger.warn('Orphan Directory Skipped', {
+        i,
+        dir: subdirectoryPath,
+        ...check,
+      });
       continue;
     }
 
@@ -226,14 +240,19 @@ function deleteOrphanedWorking(dir, dateFormat, callback) {
       rimraf.sync(subdirectoryPath);
       logger.info('Orphan Directory Deleted', { i, dir: subdirectoryPath });
     } catch (err) {
-      logger.error('Orphan Directory Delete Failed', { i, dir: subdirectoryPath });
+      logger.error('Orphan Directory Delete Failed', {
+        i,
+        dir: subdirectoryPath,
+      });
       logger.error('Orphan Directory Delete Error', err);
       failed = true;
     }
   }
 
   if (failed) {
-    return callback(new Error('At least one orphan directory failed check/delete'));
+    return callback(
+      new Error('At least one orphan directory failed check/delete')
+    );
   }
 
   return callback(null);
@@ -282,7 +301,7 @@ const exportQueryToCSV = (db, filepath, sql, callback) => {
   logger.debug('Export Query Started', { filepath, sql });
 
   db.exportData(sql, filepath, (err, res) => {
-    const elapsedMs = (Date.now() - start);
+    const elapsedMs = Date.now() - start;
     const elapsedSec = elapsedMs / 1000;
     if (err) {
       logger.error('Export Query Failure', err);
@@ -368,7 +387,7 @@ function loadMappingFile(mappingName, callback) {
  * @param preprocessorName - The name of the preprocessor to load.
  * @param callback - A callback to call once the function is complete.
  * @param callback.err - If failed, the error.
- * @param callback.res - If success, the content of the mapping file, or [] 
+ * @param callback.res - If success, the content of the mapping file, or []
  * if the file does not exist.
  */
 function loadPreprocessorFile(preprocessorName, callback) {
@@ -422,7 +441,10 @@ function populateMappingTasks(mapping, db, exportDir, callback) {
     logger.error('Populating Mapping Tasks Failure', err);
     return callback(err);
   }
-  logger.info('Populating Mapping Tasks Success', { elapsedSec, tasks: tasks.length });
+  logger.info('Populating Mapping Tasks Success', {
+    elapsedSec,
+    tasks: tasks.length,
+  });
   return callback(null, tasks);
 }
 
@@ -442,7 +464,7 @@ const runQuery = (db, sql, callback) => {
   logger.debug('Run Query Started', { sql });
 
   db.query({ q: sql }, (err, res) => {
-    const elapsedMs = (Date.now() - start);
+    const elapsedMs = Date.now() - start;
     const elapsedSec = elapsedMs / 1000;
 
     if (err) {
@@ -481,7 +503,10 @@ function populatePreprocessorTasks(preprocessors, db, callback) {
 
   const elapsedSec = (Date.now() - start) / 1000;
 
-  logger.info('Populating Preprocessor Tasks Success', { elapsedSec, tasks: tasks.length });
+  logger.info('Populating Preprocessor Tasks Success', {
+    elapsedSec,
+    tasks: tasks.length,
+  });
   return callback(null, tasks);
 }
 
@@ -592,7 +617,14 @@ function runPreprocessorTasks(tasks, parallelLimit, callback) {
  * @param callback - A callback to call once the function is complete.
  * @param callback.err - If failed, the error.
  */
-function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callback) {
+function transferFile(
+  filepath,
+  sizeBytes,
+  target,
+  remotePath,
+  privateKey,
+  callback
+) {
   // Note that originally we were using the scp2 library, which was much more succint; however
   // it does not handle errors appropriately. Eg with a bad passphrase it throws and error instead
   // of a callback, and when an error callback is thrown, it calls them double. All in all the scp2
@@ -655,7 +687,11 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
         const elapsedSec = (Date.now() - start) / 1000;
         const transferredMB = (sizeBytes / 1024 / 1024).toFixed(2);
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
-        logger.info('Transfer File Success', { elapsedSec, transferredMB, speedMBPerSec });
+        logger.info('Transfer File Success', {
+          elapsedSec,
+          transferredMB,
+          speedMBPerSec,
+        });
         return callback(null);
       });
 
@@ -697,30 +733,36 @@ function waitForConnection(db, times, interval, callback) {
   // is handled by the async.retry function.
   let i = 0;
 
-  async.retry({
-    times,
-    interval,
-    errorFilter: (err) => {
-      i += 1;
+  async.retry(
+    {
+      times,
+      interval,
+      errorFilter: (err) => {
+        i += 1;
 
-      // Keep retrying if the error contains the error contains ECONNREFUSED.
-      // Any other error (such as invalid credentials) will callback and error.
-      const keepTrying = _.includes(err.error, 'ECONNREFUSED');
-      logger.info(`Connection Refused ${i}/${times}. Keep trying: ${keepTrying}`);
-      logger.debug(err.error);
-      return keepTrying;
+        // Keep retrying if the error contains the error contains ECONNREFUSED.
+        // Any other error (such as invalid credentials) will callback and error.
+        const keepTrying = _.includes(err.error, 'ECONNREFUSED');
+        logger.info(
+          `Connection Refused ${i}/${times}. Keep trying: ${keepTrying}`
+        );
+        logger.debug(err.error);
+        return keepTrying;
+      },
     },
-  }, testConnection, (err, res) => {
-    const elapsedSec = (Date.now() - start) / 1000;
+    testConnection,
+    (err, res) => {
+      const elapsedSec = (Date.now() - start) / 1000;
 
-    if (err) {
-      logger.error('Wait for Connection Failure', err);
-      return callback(err);
+      if (err) {
+        logger.error('Wait for Connection Failure', err);
+        return callback(err);
+      }
+
+      logger.info('Wait for Connection Success', { elapsedSec });
+      return callback(null, res);
     }
-
-    logger.info('Wait for Connection Success', { elapsedSec });
-    return callback(null, res);
-  });
+  );
 }
 
 /**
@@ -751,7 +793,10 @@ function run(options, callback) {
 
   const parentExportDir = path.resolve(process.cwd(), workingDir);
   const tempExportDir = path.join(parentExportDir, timeString);
-  const exportFile = path.join(parentExportDir, `${timeString}.${compressFormat}`);
+  const exportFile = path.join(
+    parentExportDir,
+    `${timeString}.${compressFormat}`
+  );
 
   // Note that we hardcode the path to posix (eg linux remote endpoint)
   const remoteFile = path.posix.join(target.path, path.basename(exportFile));
@@ -774,99 +819,159 @@ function run(options, callback) {
 
   var db = null;
 
-  return async.auto({
-    // Delete any previously orphaned temporary export directories.
-    deleteOrphanedExportDir: async.apply(deleteOrphanedWorking, parentExportDir, dateFormat),
+  return async.auto(
+    {
+      // Delete any previously orphaned temporary export directories.
+      deleteOrphanedExportDir: async.apply(
+        deleteOrphanedWorking,
+        parentExportDir,
+        dateFormat
+      ),
 
-    // Initialize the database configuration
-    database: ['deleteOrphanedExportDir', (res, cb) => {
-      initConnection(source, (err, conn) => {
-        db = conn; // Save this outside of the async function
-        cb(err, conn);
+      // Initialize the database configuration
+      database: [
+        'deleteOrphanedExportDir',
+        (res, cb) => {
+          initConnection(source, (err, conn) => {
+            db = conn; // Save this outside of the async function
+            cb(err, conn);
+          });
+        },
+      ],
+
+      // Wait for a database connection.
+      wait: [
+        'database',
+        (res, cb) => {
+          waitForConnection(
+            res.database,
+            connectionAttempts,
+            connectionInterval,
+            cb
+          );
+        },
+      ],
+      // Create the temporary export directory.
+      exportDir: [
+        'wait',
+        (res, cb) => {
+          createDirectory(tempExportDir, cb);
+        },
+      ],
+      // Chmod the temporary export directory.
+      exportDirMode: [
+        'exportDir',
+        (res, cb) => {
+          changePermissions(tempExportDir, workingDirMode, cb);
+        },
+      ],
+
+      // Load the preprocessor file content.
+      preprocessor: [
+        'exportDirMode',
+        (res, cb) => {
+          loadPreprocessorFile(mapping, cb);
+        },
+      ],
+      // Populate tasks from the preprocessor/mapping file.
+      preprocessorTasks: [
+        'preprocessor',
+        (res, cb) => {
+          populatePreprocessorTasks(res.preprocessor, res.database, cb);
+        },
+      ],
+
+      // Load the mapping file content.
+      mapping: [
+        'preprocessorTasks',
+        (res, cb) => {
+          loadMappingFile(mapping, cb);
+        },
+      ],
+      // Populate tasks from the preprocessor/mapping file.
+      mappingTasks: [
+        'mapping',
+        (res, cb) => {
+          populateMappingTasks(res.mapping, res.database, tempExportDir, cb);
+        },
+      ],
+
+      // Run the preprocessor tasks (not in parallel).
+      preprocessed: [
+        'mappingTasks',
+        (res, cb) => {
+          runPreprocessorTasks(res.preprocessorTasks, 1, cb);
+        },
+      ],
+      // Run the tasks (eg export to csv).
+      export: [
+        'preprocessed',
+        (res, cb) => {
+          runMappingTasks(res.mappingTasks, parallelExtracts, cb);
+        },
+      ],
+      // Also export the mapping file.
+      exportMapping: [
+        'export',
+        (res, cb) => {
+          writeFile(path.join(tempExportDir, 'mapping.json'), mapping, cb);
+        },
+      ],
+      // Compress the csv directory to a zip file.
+      compress: [
+        'exportMapping',
+        (res, cb) => {
+          compressDirectory(tempExportDir, exportFile, compressFormat, cb);
+        },
+      ],
+      // Read the private key file.
+      privatekey: [
+        'compress',
+        (res, cb) => {
+          readFile(target.privatekey, cb);
+        },
+      ],
+      // Transfer the compressed file to the remote server.
+      transfer: [
+        'privatekey',
+        (res, cb) => {
+          transferFile(
+            exportFile,
+            res.compress.sizeBytes,
+            target,
+            remoteFile,
+            res.privatekey,
+            cb
+          );
+        },
+      ],
+    },
+    (errRun, res) => {
+      // Silently close the database connection.
+      if (db) {
+        logger.info('Closing Database Connection');
+        db.cleanup();
+      }
+
+      // The deletion of the files and directories need to happen no matter what.
+
+      // Delete the export directory containing the csv files.
+      deleteDirectory(tempExportDir, (errDir) => {
+        // Delete the compressed file.
+        deleteFile(exportFile, (errFile) => {
+          const elapsedSec = (Date.now() - start) / 1000;
+
+          const err = errRun || errDir || errFile;
+          if (err) {
+            logger.error('Run Failure', err);
+            return callback(err);
+          }
+          logger.info('Run Success', { elapsedSec });
+          return callback(null, res);
+        });
       });
-    }],
-
-    // Wait for a database connection.
-    wait: ['database', (res, cb) => {
-      waitForConnection(res.database, connectionAttempts, connectionInterval, cb);
-    }],
-    // Create the temporary export directory.
-    exportDir: ['wait', (res, cb) => {
-      createDirectory(tempExportDir, cb);
-    }],
-    // Chmod the temporary export directory.
-    exportDirMode: ['exportDir', (res, cb) => {
-      changePermissions(tempExportDir, workingDirMode, cb);
-    }],
-
-    // Load the preprocessor file content.
-    preprocessor: ['exportDirMode', (res, cb) => {
-      loadPreprocessorFile(mapping, cb);
-    }],
-    // Populate tasks from the preprocessor/mapping file.
-    preprocessorTasks: ['preprocessor', (res, cb) => {
-      populatePreprocessorTasks(res.preprocessor, res.database, cb);
-    }],
-
-    // Load the mapping file content.
-    mapping: ['preprocessorTasks', (res, cb) => {
-      loadMappingFile(mapping, cb);
-    }],
-    // Populate tasks from the preprocessor/mapping file.
-    mappingTasks: ['mapping', (res, cb) => {
-      populateMappingTasks(res.mapping, res.database, tempExportDir, cb);
-    }],
-
-    // Run the preprocessor tasks (not in parallel).
-    preprocessed: ['mappingTasks', (res, cb) => {
-      runPreprocessorTasks(res.preprocessorTasks, 1, cb);
-    }],
-    // Run the tasks (eg export to csv).
-    export: ['preprocessed', (res, cb) => {
-      runMappingTasks(res.mappingTasks, parallelExtracts, cb);
-    }],
-    // Also export the mapping file.
-    exportMapping: ['export', (res, cb) => {
-      writeFile(path.join(tempExportDir, 'mapping.json'), mapping, cb);
-    }],
-    // Compress the csv directory to a zip file.
-    compress: ['exportMapping', (res, cb) => {
-      compressDirectory(tempExportDir, exportFile, compressFormat, cb);
-    }],
-    // Read the private key file.
-    privatekey: ['compress', (res, cb) => {
-      readFile(target.privatekey, cb);
-    }],
-    // Transfer the compressed file to the remote server.
-    transfer: ['privatekey', (res, cb) => {
-      transferFile(exportFile, res.compress.sizeBytes, target, remoteFile, res.privatekey, cb);
-    }],
-  }, (errRun, res) => {
-
-    // Silently close the database connection.
-    if (db) {
-      logger.info('Closing Database Connection');
-      db.cleanup();
     }
-
-    // The deletion of the files and directories need to happen no matter what.
-
-    // Delete the export directory containing the csv files.
-    deleteDirectory(tempExportDir, (errDir) => {
-      // Delete the compressed file.
-      deleteFile(exportFile, (errFile) => {
-        const elapsedSec = (Date.now() - start) / 1000;
-
-        const err = (errRun || errDir || errFile);
-        if (err) {
-          logger.error('Run Failure', err);
-          return callback(err);
-        }
-        logger.info('Run Success', { elapsedSec });
-        return callback(null, res);
-      });
-    });
-  });
+  );
 }
 
 module.exports = {
