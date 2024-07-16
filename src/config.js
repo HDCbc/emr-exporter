@@ -169,7 +169,7 @@ function load(callback) {
       // Replace the database password with the encrypted value.
       const newEnv = env.replace(
         /(source_password(?:\s*)=(?:\s*))(.*)/g,
-        `$1ENC:${encrypted}`
+        `$1ENC:${encrypted}`,
       );
 
       // Write the new .env file content

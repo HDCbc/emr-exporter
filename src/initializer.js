@@ -44,7 +44,7 @@ function generateKey(bits, pubKeyPath, privKeyPath, callback) {
   };
 
   console.log(
-    ` Generating ${bits} bit RSA Key Pair (this may take a few minutes)`
+    ` Generating ${bits} bit RSA Key Pair (this may take a few minutes)`,
   );
   return forge.pki.rsa.generateKeyPair(parameters, (err, keypair) => {
     if (err) {
@@ -56,7 +56,7 @@ function generateKey(bits, pubKeyPath, privKeyPath, callback) {
 
     const pubKey = forge.ssh.publicKeyToOpenSSH(
       keypair.publicKey,
-      `EMR-${os.hostname()}`
+      `EMR-${os.hostname()}`,
     );
     const privKey = forge.pki.privateKeyToPem(keypair.privateKey);
 
@@ -87,39 +87,39 @@ function createEnv(baseEnvPath, userConfig, callback) {
 
   content = content.replace(
     /(source_dialect(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.dbDialect}`
+    `$1${userConfig.dbDialect}`,
   );
   content = content.replace(
     /(source_host(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.dbHost}`
+    `$1${userConfig.dbHost}`,
   );
   content = content.replace(
     /(source_port(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.dbPort}`
+    `$1${userConfig.dbPort}`,
   );
   content = content.replace(
     /(source_database(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.dbDatabase}`
+    `$1${userConfig.dbDatabase}`,
   );
   content = content.replace(
     /(source_user(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.dbUser}`
+    `$1${userConfig.dbUser}`,
   );
   content = content.replace(
     /(source_password(?:\s*)=(?:\s*))(.*)/g,
-    `$1${encryptedPassword}`
+    `$1${encryptedPassword}`,
   );
   content = content.replace(
     /(target_host(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.endpointHost}`
+    `$1${userConfig.endpointHost}`,
   );
   content = content.replace(
     /(target_port(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.endpointPort}`
+    `$1${userConfig.endpointPort}`,
   );
   content = content.replace(
     /(target_username(?:\s*)=(?:\s*))(.*)/g,
-    `$1${userConfig.endpointAccount}`
+    `$1${userConfig.endpointAccount}`,
   );
 
   const outputPath = path.join(process.cwd(), '.env');
@@ -139,15 +139,15 @@ function requireQuestion(text, options) {
 
 function promptUserConfig(callback) {
   console.log(
-    '#####################################################################'
+    '#####################################################################',
   );
   console.log('# GATHERING CONNECTION INFO');
   console.log(
-    '#####################################################################'
+    '#####################################################################',
   );
   console.log('');
   console.log(
-    'Specify the connection information that this application should'
+    'Specify the connection information that this application should',
   );
   console.log('use to connect to the EMR database.');
   console.log();
@@ -185,7 +185,7 @@ function promptUserConfig(callback) {
   });
   const endpointAccount = requireQuestion(
     `Endpoint Account (${defEndpointAccount}): `,
-    { defaultInput: defEndpointAccount }
+    { defaultInput: defEndpointAccount },
   );
 
   return callback(null, {
@@ -209,11 +209,11 @@ function run(callback) {
 
     console.log();
     console.log(
-      '#####################################################################'
+      '#####################################################################',
     );
     console.log('# CONFIGURING');
     console.log(
-      '#####################################################################'
+      '#####################################################################',
     );
 
     return async.auto(
@@ -235,11 +235,11 @@ function run(callback) {
         if (err) {
           console.error();
           console.error(
-            '#####################################################################'
+            '#####################################################################',
           );
           console.error('# ERROR');
           console.error(
-            '#####################################################################'
+            '#####################################################################',
           );
           console.error('Configuration could not be completed:');
           console.error(err);
@@ -248,21 +248,21 @@ function run(callback) {
 
         console.log();
         console.log(
-          '#####################################################################'
+          '#####################################################################',
         );
         console.log('# FINALIZING');
         console.log(
-          '#####################################################################'
+          '#####################################################################',
         );
         console.log();
         console.log(
-          'The following information is required by HDC to create a secure'
+          'The following information is required by HDC to create a secure',
         );
         console.log(
-          'connection between this application and the endpoint. This application'
+          'connection between this application and the endpoint. This application',
         );
         console.log(
-          'will not run successfully until HDC receives the below information.'
+          'will not run successfully until HDC receives the below information.',
         );
         console.log();
         console.log('Email the below to systems@hdcbc.ca');
@@ -274,7 +274,7 @@ function run(callback) {
         console.log(ip.address());
 
         return callback(null);
-      }
+      },
     );
   });
 }

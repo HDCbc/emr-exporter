@@ -55,9 +55,9 @@ module.exports = (config) => {
           info.message,
           info.metadata && Object.keys(info.metadata).length
             ? JSON.stringify(info.metadata)
-            : ''
-        )
-      )
+            : '',
+        ),
+      ),
     );
 
   const createFileTransport = () => {

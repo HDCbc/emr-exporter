@@ -19,7 +19,7 @@
     "check": "npm audit && npm run depcheck && npm outdated && npm run stylecheck",
     "lint": "eslint *.js src",
     "prettier": "prettier --check src",
-    "pre-commit": ""
+    "pre-commit": "npm run prettier && npm run lint"
   },
   "repository": {
     "type": "git",
