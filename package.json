@@ -9,7 +9,7 @@
     "depcheck": "npx depcheck",
     "stylecheck": "eslint **/*.js",
     "seccheck": "nsp check",
-    "build": "pkg . -t node12-win,node12-linux --out-path ./build/",
+    "build": "esbuild index.js --bundle --platform=node --loader:.node=file --outfile=out.js && node --experimental-sea-config sea-config.json && cp $(command -v node) emr-exporter && npx postject emr-exporter NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
     "start": "node index.js",
     "clean": "rm -rf ./build",
     "check": "npm audit && npm run depcheck && npm outdated && npm run stylecheck"
@@ -51,17 +51,11 @@
   },
   "devDependencies": {
     "depcheck": "^1.0.0",
+    "esbuild": "0.23.0",
     "eslint": "^8.21.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.22.0",
     "jsdoc": ">=3.6.4"
-  },
-  "pkg": {
-    "assets": [
-      "mappings/*.json",
-      "preprocessors/*.json",
-      "examples/*.env"
-    ]
   },
   "bin": "./index.js"
 }

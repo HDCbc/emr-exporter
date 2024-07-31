@@ -347,7 +347,7 @@ function loadMappingFile(mappingName, callback) {
   // The mapping files are json files that should be located in /project/mapping.
   // This directory should be included as in pkg.assets within package.json so they can be read
   // once the source code is packaged into an executable.
-  const mappingPath = path.join(__dirname, '../mappings', `${mappingName}.json`);
+  const mappingPath = path.resolve(process.cwd(), 'mappings', `${mappingName}.json`);
 
   logger.info('Load Mapping Started', { mappingName, mappingPath });
 
@@ -784,7 +784,7 @@ function run(options, callback) {
 
   const timeString = moment().format(dateFormat);
 
-  const parentExportDir = path.join(path.dirname(process.execPath), workingDir);
+  const parentExportDir = path.resolve(process.cwd(), workingDir);
   const tempExportDir = path.join(parentExportDir, timeString);
   const exportFile = path.join(parentExportDir, `${timeString}.${compressFormat}`);
 
