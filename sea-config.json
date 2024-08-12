@@ -1,5 +1,5 @@
 {
-    "main": "out.js",
-    "output": "sea-prep.blob"
-}
+    "main": "build/out.js",
+    "output": "build/sea-prep.blob"
+  }
   
