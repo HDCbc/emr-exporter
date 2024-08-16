@@ -13,7 +13,7 @@
     "stylecheck": "eslint **/*.js",
     "seccheck": "nsp check",
     "build:linux": "esbuild index.js --bundle --platform=node --loader:.node=file --outfile=build/out.js && node --experimental-sea-config sea-config.json && cp $(command -v node) emr-exporter-linux && npx postject emr-exporter-linux NODE_SEA_BLOB build/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
-    "build:windows": "esbuild index.js --bundle --platform=node --loader:.node=file --outfile=build/out.js && node --experimental-sea-config sea-config.json && node -e \"require('fs').copyFileSync(process.execPath, 'emr-exporter-windows.exe')\" && npx postject emr-exporter-windows.exe NODE_SEA_BLOB build/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
+    "build:windows": "esbuild index.js --bundle --platform=node --loader:.node=file --outfile=build/out.js && node --experimental-sea-config sea-config.json && node -e \"require('fs').copyFileSync(process.execPath, 'emr-exporter-win.exe')\" && npx postject emr-exporter-windows.exe NODE_SEA_BLOB build/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
     "start": "node index.js",
     "clean": "rm -rf ./build",
     "check": "npm audit && npm run depcheck && npm outdated && npm run stylecheck"
