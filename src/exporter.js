@@ -670,15 +670,20 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       }
 
       const readStream = fs.createReadStream(filepath);
-      const writeStream = sftp.createWriteStream(remotePath, { autoDestroy: true });
+      const writeStream = sftp.createWriteStream(remotePath);
 
       readStream.on('end', () => {
-        logger.info('Read Stream Ended');
+        logger.debug('Read Stream Ended');
       });
 
       readStream.on('error', (errRs) => {
         logger.error('Transfer File Failure (readStream)', errRs);
         return callback(errRs);
+      });
+
+      writeStream.on('error', (errWs) => {
+        logger.error('Transfer File Failure (writeStream)', errWs);
+        return callback(errWs);
       });
 
       writeStream.on('close', () => {
@@ -689,11 +694,6 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
         logger.info('Transfer File Success', { elapsedSec, transferredMB, speedMBPerSec });
         return callback(null);
-      });
-
-      writeStream.on('error', (errWs) => {
-        logger.error('Transfer File Failure (writeStream)', errWs);
-        return callback(errWs);
       });
 
       // Initiate transfer of file
