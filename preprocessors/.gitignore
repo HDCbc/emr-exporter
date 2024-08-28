@@ -1,6 +1,9 @@
 # Ignore everything
 *
 
+# Don't ignore index file
+!index.js
+
 # Don't ignore .gitignore and oscar.json files
 !.gitignore
 !oscar.json
