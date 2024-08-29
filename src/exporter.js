@@ -381,7 +381,7 @@ function loadPreprocessorFile(preprocessorName, callback) {
   // should avoid it.
   if (preprocessorName.toLowerCase() === 'mois') {
     logger.info('Load Preprocessor Skipped (MOIS)');
-    return callback(null, '[]');
+    return callback(null, []);
   }
 
   const preprocessor = preprocessors[preprocessorName];
