@@ -14,3 +14,6 @@ ssh
 working
 
 src/secret.js
+
+emr-exporter-linux
+emr-exporter-windows.exe

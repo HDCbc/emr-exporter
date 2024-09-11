@@ -8,7 +8,10 @@ const moment = require('moment');
 const path = require('path');
 const progress = require('progress-stream');
 const rimraf = require('rimraf');
+
 const dbFactory = require('./db/dbFactory');
+const mappings = require('../mappings');
+const preprocessors = require('../preprocessors');
 
 /**
  * Change the permissions (mode) of a file or directory.
@@ -332,103 +335,63 @@ function initConnection(config, callback) {
 
 /**
  * Load the content of the mapping file by name. Mapping files are located in the
- * /project/mapping directory.
+ * /project/mappings directory.
  *
- * For example to load the file /project/mapping/mois.json you would pass in "mois" as the name.
+ * Example: to load the file /project/mapping/mois.json you would pass in "mois" as the name.
  *
  * @param mappingName - The name of the mapping to load.
  * @param callback - A callback to call once the function is complete.
  * @param callback.err - If failed, the error.
- * @param callback.res - If success, the string content of the mapping file.
+ * @param callback.res - If success, the content of the mapping file.
  */
 function loadMappingFile(mappingName, callback) {
-  const start = Date.now();
+  logger.info('Load Mapping Started', { mappingName });
 
-  // The mapping files are json files that should be located in /project/mapping.
-  // This directory should be included as in pkg.assets within package.json so they can be read
-  // once the source code is packaged into an executable.
-  const mappingPath = path.join(__dirname, '../mappings', `${mappingName}.json`);
+  const mapping = mappings[mappingName];
 
-  logger.info('Load Mapping Started', { mappingName, mappingPath });
+  if (!mapping) {
+    const err = new Error(`Mapping ${mappingName} not found`);
+    logger.error('Load Mapping Failure', err);
+    return callback(err);
+  }
 
-  fs.readFile(mappingPath, (err, res) => {
-    const elapsedSec = (Date.now() - start) / 1000;
-    if (err) {
-      logger.error('Load Mapping Failure', err);
-      return callback(err);
-    }
-    logger.info('Load Mapping Success', { elapsedSec });
-    return callback(null, res.toString());
-  });
+  logger.info('Load Mapping Success');
+  return callback(null, mapping);
 }
 
 /**
- * Load the content of the preprocessor file by name. Mapping files are located in the
- * /project/preprocessors directory. If the file does not exist, then an empty array
- * will be returned.
+ * Load the content of the preprocessor file by name. If the file does not exist,
+ * then an empty array will be returned.
  *
- * For example to load the file /project/mapping/mois.json you would pass in "mois" as the name.
+ * Example: to load the file /project/preprocessors/mois.json you would pass in "mois" as the name.
  *
  * @param preprocessorName - The name of the preprocessor to load.
  * @param callback - A callback to call once the function is complete.
  * @param callback.err - If failed, the error.
- * @param callback.res - If success, the string content of the mapping file, or "[]"
- *  if the file does not exist.
+ * @param callback.res - If success, the content of the mapping file, or [] 
+ * if the file does not exist.
  */
 function loadPreprocessorFile(preprocessorName, callback) {
-  const start = Date.now();
-
-  // The preprocessor files are json files that should be located in /project/preprocessors.
-  // This directory should be included as in pkg.assets within package.json so they can be read
-  // once the source code is packaged into an executable.
-  const preprocessorPath = path.join(__dirname, '../preprocessors', `${preprocessorName}.json`);
-
-  logger.info('Load Preprocessor Started', { preprocessorName, preprocessorPath });
+  logger.info('Load Preprocessor Started', { preprocessorName });
 
   // A preprocessor for MOIS should never be used. If you were run a preprocessor (eg updates)
   // and the EMR Exporter is being run within the Brigth Health/MOIS side of the infrastructure,
   // you could actually update their live production MOIS database. This assumes that they are not
   // blocking this action by setting up their EMR Exporter Postgres user as a readonly role, but we
-  // should avoid id.
+  // should avoid it.
   if (preprocessorName.toLowerCase() === 'mois') {
     logger.info('Load Preprocessor Skipped (MOIS)');
-    return callback(null, '[]');
+    return callback(null, []);
   }
 
-  if (!fs.existsSync(preprocessorPath)) {
+  const preprocessor = preprocessors[preprocessorName];
+
+  if (!preprocessor) {
     logger.info('Load Preprocessor Skipped (Not Found)');
-    return callback(null, '[]');
+    return callback(null, []);
   }
 
-  return fs.readFile(preprocessorPath, (err, res) => {
-    const elapsedSec = (Date.now() - start) / 1000;
-    if (err) {
-      logger.error('Load Preprocessor Failure', err);
-      return callback(err);
-    }
-    logger.info('Load Preprocessor Success', { elapsedSec });
-    return callback(null, res.toString());
-  });
-}
-
-/**
- * Parse json content into a javascript object.
- * Note this is still a synchronous function but provides a callback style.
- *
- * @param content - The string content to parse.
- * @param callback - A callback to call once the function is complete.
- * @param callback.err - If failed, the error.
- * @param callback.res - If success, the parsed javascript object.
- */
-function parseJSON(content, callback) {
-  let parsed;
-  try {
-    parsed = JSON.parse(content);
-  } catch (e) {
-    return callback(e);
-  }
-
-  return callback(null, parsed);
+  return callback(null, preprocessor);
 }
 
 /**
@@ -672,8 +635,13 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
       const readStream = fs.createReadStream(filepath);
       const writeStream = sftp.createWriteStream(remotePath);
 
-      writeStream.on('close', () => {
-        logger.info('Transfer File Closed');
+      readStream.on('end', () => {
+        logger.debug('Read Stream Ended');
+      });
+
+      readStream.on('error', (errRs) => {
+        logger.error('Transfer File Failure (readStream)', errRs);
+        return callback(errRs);
       });
 
       writeStream.on('error', (errWs) => {
@@ -681,12 +649,9 @@ function transferFile(filepath, sizeBytes, target, remotePath, privateKey, callb
         return callback(errWs);
       });
 
-      writeStream.on('end', () => {
-        logger.verbose('Transfer File End');
-        conn.close();
-      });
-
-      writeStream.on('finish', () => {
+      writeStream.on('close', () => {
+        logger.info('Transfer File Closed');
+        conn.end();
         const elapsedSec = (Date.now() - start) / 1000;
         const transferredMB = (sizeBytes / 1024 / 1024).toFixed(2);
         const speedMBPerSec = (transferredMB / elapsedSec).toFixed(2);
@@ -784,7 +749,7 @@ function run(options, callback) {
 
   const timeString = moment().format(dateFormat);
 
-  const parentExportDir = path.join(path.dirname(process.execPath), workingDir);
+  const parentExportDir = path.resolve(process.cwd(), workingDir);
   const tempExportDir = path.join(parentExportDir, timeString);
   const exportFile = path.join(parentExportDir, `${timeString}.${compressFormat}`);
 
@@ -838,26 +803,18 @@ function run(options, callback) {
     preprocessor: ['exportDirMode', (res, cb) => {
       loadPreprocessorFile(mapping, cb);
     }],
-    // Parse the preprocessor file into a javascript object.
-    preprocessorJson: ['preprocessor', (res, cb) => {
-      parseJSON(res.preprocessor, cb);
-    }],
     // Populate tasks from the preprocessor/mapping file.
-    preprocessorTasks: ['preprocessorJson', (res, cb) => {
-      populatePreprocessorTasks(res.preprocessorJson, res.database, cb);
+    preprocessorTasks: ['preprocessor', (res, cb) => {
+      populatePreprocessorTasks(res.preprocessor, res.database, cb);
     }],
 
     // Load the mapping file content.
     mapping: ['preprocessorTasks', (res, cb) => {
       loadMappingFile(mapping, cb);
     }],
-    // Parse the mapping file into a javascript object.
-    mappingJson: ['mapping', (res, cb) => {
-      parseJSON(res.mapping, cb);
-    }],
     // Populate tasks from the preprocessor/mapping file.
-    mappingTasks: ['mappingJson', (res, cb) => {
-      populateMappingTasks(res.mappingJson, res.database, tempExportDir, cb);
+    mappingTasks: ['mapping', (res, cb) => {
+      populateMappingTasks(res.mapping, res.database, tempExportDir, cb);
     }],
 
     // Run the preprocessor tasks (not in parallel).
