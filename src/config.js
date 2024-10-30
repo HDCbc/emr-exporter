@@ -27,7 +27,7 @@ function get() {
     // orphaned directories named in the previous format.
     // Also see note in checkOrphanedExportDirectory regarding underscores.
     dateFormat: 'YYYY_MM_DD_HH_mm_ss',
-    workingDirMode: '0770',
+    workingDirMode: process.env.WORKING_DIR_MODE || '0770',
   });
 
   // The command line arguments have a high priority.
