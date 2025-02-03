@@ -425,7 +425,7 @@
     },
     {
         "target": "EntryAttribute.015.007",
-        "query": "SELECT 'preventions' AS source_table , 15.007 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.refused AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.007 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.refused AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_reference FROM preventions p LEFT JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "Entry.017",
