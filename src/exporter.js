@@ -251,7 +251,7 @@ function deleteOrphanedWorking(dir, dateFormat, callback) {
 
   if (failed) {
     return callback(
-      new Error('At least one orphan directory failed check/delete')
+      new Error('At least one orphan directory failed check/delete'),
     );
   }
 
@@ -623,7 +623,7 @@ function transferFile(
   target,
   remotePath,
   privateKey,
-  callback
+  callback,
 ) {
   // Note that originally we were using the scp2 library, which was much more succint; however
   // it does not handle errors appropriately. Eg with a bad passphrase it throws and error instead
@@ -744,7 +744,7 @@ function waitForConnection(db, times, interval, callback) {
         // Any other error (such as invalid credentials) will callback and error.
         const keepTrying = _.includes(err.error, 'ECONNREFUSED');
         logger.info(
-          `Connection Refused ${i}/${times}. Keep trying: ${keepTrying}`
+          `Connection Refused ${i}/${times}. Keep trying: ${keepTrying}`,
         );
         logger.debug(err.error);
         return keepTrying;
@@ -761,7 +761,7 @@ function waitForConnection(db, times, interval, callback) {
 
       logger.info('Wait for Connection Success', { elapsedSec });
       return callback(null, res);
-    }
+    },
   );
 }
 
@@ -795,7 +795,7 @@ function run(options, callback) {
   const tempExportDir = path.join(parentExportDir, timeString);
   const exportFile = path.join(
     parentExportDir,
-    `${timeString}.${compressFormat}`
+    `${timeString}.${compressFormat}`,
   );
 
   // Note that we hardcode the path to posix (eg linux remote endpoint)
@@ -825,7 +825,7 @@ function run(options, callback) {
       deleteOrphanedExportDir: async.apply(
         deleteOrphanedWorking,
         parentExportDir,
-        dateFormat
+        dateFormat,
       ),
 
       // Initialize the database configuration
@@ -847,7 +847,7 @@ function run(options, callback) {
             res.database,
             connectionAttempts,
             connectionInterval,
-            cb
+            cb,
           );
         },
       ],
@@ -941,7 +941,7 @@ function run(options, callback) {
             target,
             remoteFile,
             res.privatekey,
-            cb
+            cb,
           );
         },
       ],
@@ -970,7 +970,7 @@ function run(options, callback) {
           return callback(null, res);
         });
       });
-    }
+    },
   );
 }
 
