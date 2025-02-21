@@ -21,7 +21,7 @@
     },
     {
         "target": "Entry.001",
-        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION ALL SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
+        "query": "SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION SELECT 'demographic' AS source_table, 001 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
     },
     {
         "target": "EntryState.001",
@@ -425,7 +425,7 @@
     },
     {
         "target": "Entry.017",
-        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION ALL SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
+        "query": "SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographic UNION SELECT 'demographic' AS source_table, 017 as entry_id, demographic_no AS emr_id, demographic_no AS emr_patient_id FROM demographicArchive"
     },
     {
         "target": "EntryState.017",
