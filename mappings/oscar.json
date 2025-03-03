@@ -209,7 +209,7 @@
     },
 	{
 		"target": "EntryAttribute.007.009",
-		"query": "select 'casemgmt_note' as source_table, 007.009 as attribute_id, note_id as emr_entry_id, 'MSP' as code_system, coalesce(ohip_no, '') as code_value, CONCAT(p.first_name, ' ', p.last_name) as text_value, null as date_value, null as boolean_value, null as numeric_value, note_id as emr_id, lastUpdateDate as effective_date, null as emr_reference FROM casemgmt_note cn join provider p on cn.provider_no = p.provider_no WHERE p.provider_no > 0"
+		"query": "select 'casemgmt_note' as source_table, 007.009 as attribute_id, note_id as emr_entry_id, 'MSP' as code_system, coalesce(ohip_no, '') as code_value, CONCAT(p.first_name, ' ', p.last_name) as text_value, null as date_value, null as boolean_value, null as numeric_value, note_id as emr_id, cn.observation_date as effective_date, null as emr_reference FROM casemgmt_note cn join provider p on cn.provider_no = p.provider_no WHERE p.provider_no > 0"
 	},
     {
         "target": "Entry.009",
