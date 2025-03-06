@@ -14,7 +14,7 @@ function expandErrors(currLogger) {
   const originalLogFunc = currLogger.log;
   // const newLogger = Object.assign({}, currLogger);
   function log() {
-    const args = Array.prototype.slice.call(arguments, 0); // eslint-disable-line
+    const args = Array.prototype.slice.call(arguments, 0);
     // TODO This will only work if the 3rd argument (the first is the level) is an Error.
     if (args.length >= 3 && args[2] instanceof Error) {
       const allPropNames = Object.getOwnPropertyNames(args[2]);
@@ -37,21 +37,28 @@ function expandErrors(currLogger) {
   return log;
 }
 
-module.exports = ((config) => {
-  const {
-    level,
-    filename,
-    maxsize,
-    maxFiles,
-    tailable,
-    zippedArchive,
-  } = config;
+module.exports = (config) => {
+  const { level, filename, maxsize, maxFiles, tailable, zippedArchive } =
+    config;
 
-  const createFormatter = () => winston.format.combine(
-    winston.format.metadata(),
-    winston.format.timestamp({ format: () => moment.tz('America/Vancouver').format(TIMESTAMP_FORMAT) }),
-    winston.format.printf((info) => printf('%s  %-6s %-30s %s', info.timestamp, info.level, info.message, info.metadata && Object.keys(info.metadata).length ? JSON.stringify(info.metadata) : '')),
-  );
+  const createFormatter = () =>
+    winston.format.combine(
+      winston.format.metadata(),
+      winston.format.timestamp({
+        format: () => moment.tz('America/Vancouver').format(TIMESTAMP_FORMAT),
+      }),
+      winston.format.printf((info) =>
+        printf(
+          '%s  %-6s %-30s %s',
+          info.timestamp,
+          info.level,
+          info.message,
+          info.metadata && Object.keys(info.metadata).length
+            ? JSON.stringify(info.metadata)
+            : '',
+        ),
+      ),
+    );
 
   const createFileTransport = () => {
     // TODO - what about recursive directories? // WHAT IF IT FAILS!!!!!!!
@@ -73,21 +80,19 @@ module.exports = ((config) => {
     });
   };
 
-  const createConsoleTransport = () => new (winston.transports.Console)({
-    colorize: true,
-    format: createFormatter(),
-  });
+  const createConsoleTransport = () =>
+    new winston.transports.Console({
+      colorize: true,
+      format: createFormatter(),
+    });
 
   const fileTransport = createFileTransport();
   const consoleTransport = createConsoleTransport();
 
   winston.configure({
     level,
-    transports: [
-      consoleTransport,
-      fileTransport,
-    ],
+    transports: [consoleTransport, fileTransport],
   });
 
   winston.log = expandErrors(winston);
-});
+};
