@@ -113,11 +113,11 @@
     },
     {
         "target": "EntryAttribute.003.007",
-	    "query": "SELECT 'billingmaster' AS source_table, 3.007 AS attribute_id, bm.billingmaster_no AS emr_entry_id, null as code_system, null as code_value, bm.original_claim as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm WHERE YEAR(date(bm.service_date)) > 1900 and bm.original_claim <> '00000000000000000000' and bm.original_claim is not null"
+        "query": "SELECT 'billingmaster' AS source_table, 3.007 AS attribute_id, bm.billingmaster_no AS emr_entry_id, null as code_system, null as code_value, bm.original_claim as text_value, null as date_value , null as boolean_value, null as numeric_value, bm.billingmaster_no as emr_id, date(bm.service_date) as effective_date, null as emr_reference FROM billingmaster bm WHERE YEAR(date(bm.service_date)) > 1900 and bm.original_claim <> '00000000000000000000' and bm.original_claim is not null"
     },
     {
         "target": "EntryAttribute.003.008",
-	    "query": "SELECT 'billingmaster' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bm.billingmaster_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
+        "query": "SELECT 'billingmaster' AS source_table, 3.008 AS attribute_id, bm.billingmaster_no AS emr_entry_id, 'MSP' AS code_system, p.practitionerNo as code_value, CONCAT(p.last_name, ', ', p.first_name) AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, bm.billingmaster_no AS emr_id, bh.creation_date AS effective_date, NULL AS emr_reference FROM billingmaster bm JOIN billing_history bh ON bm.billingmaster_no = bh.billingmaster_no JOIN provider p ON bh.practitioner_no = p.provider_no WHERE YEAR(service_date) > 1900"
     },
     {
         "target": "Entry.005",
@@ -207,10 +207,10 @@
         "target": "EntryAttribute.007.008",
         "query": "SELECT 'casemgmt_note' AS source_table, 7.008 AS attribute_id, cn.note_id AS emr_entry_id, 'MSP' AS code_system, bill.billing_code AS code_value, NULL AS text_value, NULL AS date_value, NULL AS boolean_value, NULL AS numeric_value, cn.note_id AS emr_id, cn.observation_date AS effective_date, bill.billingmaster_no AS emr_reference FROM casemgmt_note cn INNER JOIN ( SELECT max(note_id) AS note_id FROM casemgmt_note WHERE provider_no != -1 AND include_issue_innote IN (0,1) GROUP BY uuid ) note ON (note.note_id = cn.note_id) LEFT JOIN ( SELECT bm2.appointment_no, bm2.billing_code, bm2.billingmaster_no FROM billingmaster bm2 INNER JOIN ( SELECT MIN(bm.billingmaster_no) AS billingmaster_no FROM billingmaster bm WHERE bm.billingstatus NOT LIKE 'D' AND bm.appointment_no > 0 GROUP BY bm.appointment_no ) appt ON (appt.billingmaster_no = bm2.billingmaster_no) ) bill ON (cn.appointmentNo > 0 AND bill.appointment_no = cn.appointmentNo) WHERE bill.billing_code IS NOT NULL AND YEAR(cn.observation_date) > 1900"
     },
-	{
-		"target": "EntryAttribute.007.009",
-		"query": "select 'casemgmt_note' as source_table, 007.009 as attribute_id, note_id as emr_entry_id, 'MSP' as code_system, coalesce(ohip_no, '') as code_value, CONCAT(p.first_name, ' ', p.last_name) as text_value, null as date_value, null as boolean_value, null as numeric_value, note_id as emr_id, cn.observation_date as effective_date, null as emr_reference FROM casemgmt_note cn join provider p on cn.provider_no = p.provider_no WHERE p.provider_no > 0"
-	},
+    {
+        "target": "EntryAttribute.007.009",
+        "query": "select 'casemgmt_note' as source_table, 007.009 as attribute_id, note_id as emr_entry_id, 'MSP' as code_system, coalesce(ohip_no, '') as code_value, CONCAT(p.first_name, ' ', p.last_name) as text_value, null as date_value, null as boolean_value, null as numeric_value, note_id as emr_id, cn.observation_date as effective_date, null as emr_reference FROM casemgmt_note cn join provider p on cn.provider_no = p.provider_no WHERE p.provider_no > 0"
+    },
     {
         "target": "Entry.009",
         "query": "SELECT 'measurements' AS source_table, 009 as entry_id, id AS emr_id , demographicNo AS emr_patient_id FROM measurements"
@@ -397,35 +397,31 @@
     },
     {
         "target": "Entry.015",
-        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, p.demographic_no AS emr_patient_id FROM preventions p WHERE p.deleted = 0"
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, p.demographic_no AS emr_patient_id FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0"
     },
     {
         "target": "EntryState.015",
-        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, 'A' AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table, 015 as entry_id, p.id AS emr_id, 'A' AS state, DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate )) , '%Y-%m-%dT%T.%fZ') AS effective_date, NULL AS emr_reference FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.015.001",
-        "query": "SELECT 'preventions' AS source_table , 15.001 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.prevention_type AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.001 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.prevention_type AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.015.002",
-        "query": "SELECT 'preventions' AS source_table , 15.002 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.next_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.002 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.next_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.015.003",
-        "query": "SELECT 'preventions' AS source_table , 15.003 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.prevention_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.003 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , NULL AS text_value , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.prevention_date)) , '%Y-%m-%dT%T.%fZ') AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.015.004",
-        "query": "SELECT 'preventions' AS source_table , 15.004 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.provider_no AS code_value , CONCAT( pr.first_name, ' ', pr.last_name ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM preventions p LEFT JOIN provider pr ON (pr.provider_no = p.provider_no AND p.provider_no <> '') WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.004 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.provider_no AS code_value , CONCAT( pr.first_name, ' ', pr.last_name ) AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) LEFT JOIN provider pr ON (pr.provider_no = p.provider_no AND p.provider_no <> '') WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "EntryAttribute.015.006",
-        "query": "SELECT 'preventions' AS source_table , 15.006 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , reason.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `reason`.id AS emr_reference FROM preventions p LEFT JOIN preventionsExt `reason` ON ( `reason`.prevention_id = p.id AND `reason`.keyval = 'reason' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
-    },
-    {
-        "target": "EntryAttribute.015.007",
-        "query": "SELECT 'preventions' AS source_table , 15.007 AS attribute_id , p.id AS emr_entry_id , 'OSCAR' AS code_system , p.refused AS code_value , NULL AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , NULL AS emr_reference FROM preventions p WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
+        "query": "SELECT 'preventions' AS source_table , 15.006 AS attribute_id , p.id AS emr_entry_id , NULL AS code_system , NULL AS code_value , reason.val AS text_value , NULL AS date_value , NULL AS boolean_value , NULL AS numeric_value , p.id AS emr_id , DATE_FORMAT(TIMESTAMPADD(MICROSECOND ,- 1 ,TIMESTAMPADD(DAY , 1 , p.lastUpdateDate)) , '%Y-%m-%dT%T.%fZ') AS effective_date , `result`.id AS emr_referenceSELECT FROM preventions p INNER JOIN preventionsExt `result` ON ( p.id = `result`.prevention_id AND `result`.keyval = 'result' ) LEFT JOIN preventionsExt `reason` ON ( `reason`.prevention_id = `result`.prevention_id AND `reason`.keyval = 'reason' ) WHERE p.deleted = 0 AND YEAR(p.lastUpdateDate) > 1900"
     },
     {
         "target": "Entry.017",
