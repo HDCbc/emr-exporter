@@ -1,0 +1,4 @@
+{
+  "entry": ["src/**/*.js", "mappings/**", "preprocessors/**"],
+  "ignoreBinaries": ["nsp", "postject"]
+}
